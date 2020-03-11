@@ -1,6 +1,22 @@
 {% extends 'registration/base.html' %}
 
 {% block content %}
-<h1>Login Page</h1>
 
+{% if form.errors %}
+    <div class="alert alert-danger" role="alert">
+        {{ form.get_invalid_login_error }}
+    </div>
+{% endif %}
+
+
+<div class="container">
+    <h1>Login Page</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn btn-primary" type="submit">Login</button>
+    </form>
+    <br>
+    Don't have an account? <a href="{% url 'sign-up' %}"><strong> Create one here</strong></a>
+</div>
 {% endblock content %}

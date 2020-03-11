@@ -4,6 +4,5 @@ from .views import sign_up,index
 
 urlpatterns = [
     path('',index,name='home'),
-    path('login',auth_views.LoginView.as_view(),name='login'),
-    path('sign-up',sign_up,name='sign-up')
+    path('accounts/sign-up',sign_up,name='sign-up')
 ]
