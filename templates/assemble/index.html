@@ -1,5 +1,7 @@
 {% extends 'assemble/base.html' %}
 
 {% block content %}
-<h1>Welcome to Assemble</h1>
+<h1>Welcome to Assemble</h1> 
+<a class="btn btn-danger" href="{% url 'logout' %}">Logout</a>
+<a class="btn btn-warning" href="{% url 'project-list' %}"> Your Projects</a>
 {% endblock content %}

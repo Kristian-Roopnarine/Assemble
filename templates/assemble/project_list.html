@@ -1,0 +1,9 @@
+{% extends 'assemble/base.html' %}
+
+{% block content %}
+<h1>Project List </h1>
+{% for project in project_list %}
+    {{ project }}
+{% endfor %}
+<a class="btn btn-primary" href="{% url 'home' %}">Home</a>
+{% endblock content %}

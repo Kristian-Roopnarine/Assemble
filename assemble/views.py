@@ -1,10 +1,11 @@
 from django.shortcuts import render,redirect
+from django.views.generic import ListView
+from .models import Project
 
 # django form for creating a user 
 from .forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login,logout
-
 # Create your views here.
 
 # home
@@ -24,3 +25,7 @@ def sign_up(request):
     context['form'] = form
 
     return render(request,'registration/sign_up.html',context)
+
+# List view of all the projects for a user
+class ProjectList(ListView):
+    model = Project
