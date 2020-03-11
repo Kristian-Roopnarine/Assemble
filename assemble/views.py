@@ -3,7 +3,7 @@ from django.views.generic import ListView
 from django.views.generic.edit import CreateView,UpdateView,DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
-from .models import Project
+from .models import Project,ProjectComponent
 
 # django form for creating a user 
 from .forms import UserCreationForm
@@ -30,7 +30,7 @@ def sign_up(request):
     return render(request,'registration/sign_up.html',context)
 
 # List view of all the projects for a user
-class ProjectList(ListView):
+class ProjectList(LoginRequiredMixin,ListView):
     model = Project
     
     def get_queryset(self):
@@ -49,3 +49,15 @@ class ProjectCreate(LoginRequiredMixin,CreateView):
         # before it returned super().form_valid(form)
         # however when using a m2m relationship, the object needs to be saved FIRST, then relationships can be made.
         return redirect('project-list')
+
+def project_detail_view(request,project_slug):
+    project = Project.objects.filter(user=request.user).get(slug=project_slug)
+    project_components = ProjectComponent.objects.filter(belongs_to__name=project)
+    context = {
+        'project':project,
+        'project_components':project_components
+    }
+    return render(request,'assemble/project_detail.html',context)
+
+def project_component_detail_view(request,project_component_slug):
+    return render(request,'assemble/project_component.html')

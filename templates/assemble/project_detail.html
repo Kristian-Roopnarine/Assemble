@@ -1,0 +1,11 @@
+{% extends 'assemble/base.html' %}
+
+
+{% block content %}
+<h1>Project Detail</h1>
+<h1>{{project.name}}</h1>
+{% for component in project_components %}
+<a href="{% url 'project-component-detail' component.slug %}">{{component.name}}</a>
+{% endfor %}
+
+{% endblock content %}

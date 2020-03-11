@@ -3,7 +3,7 @@
 {% block content %}
 <h1>Project List </h1>
 {% for project in project_list %}
-    <p>{{ project }}</p>
+    <a href="{% url 'project-detail' project.slug %}">{{ project }}</a>
 {% endfor %}
 <br>
 <a class="btn btn-primary" href="{% url 'home' %}">Home</a>
