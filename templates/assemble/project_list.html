@@ -3,7 +3,9 @@
 {% block content %}
 <h1>Project List </h1>
 {% for project in project_list %}
-    {{ project }}
+    <p>{{ project }}</p>
 {% endfor %}
+<br>
 <a class="btn btn-primary" href="{% url 'home' %}">Home</a>
+<a class="btn btn-warning" href="{% url 'project-create' %}">Add project</a>
 {% endblock content %}
