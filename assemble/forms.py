@@ -4,6 +4,7 @@ from django.contrib.auth import (
 )
 from django.contrib.auth.forms import UsernameField
 from django.utils.translation import gettext, gettext_lazy as _
+from .models import Project,ProjectComponent
 from django import forms
 
 class UserCreationForm(forms.ModelForm):
@@ -59,8 +60,7 @@ class UserCreationForm(forms.ModelForm):
 
     def save(self,commit= True):
         user = super().save(commit=False)
-        user.set_passwrd(self.cleaned_data['password1'])
+        user.set_password(self.cleaned_data['password1'])
         if commit:
             user.save()
         return user
-   

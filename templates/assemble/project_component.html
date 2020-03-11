@@ -3,5 +3,7 @@
 
 {% block content %}
 <h1>Project Component</h1>
-
+{{ component_tasks }}
+<br>
+<a href="{% url 'create-task' component.slug %}">Create tasks <a/>
 {% endblock content %}

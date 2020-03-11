@@ -3,7 +3,7 @@ from django.views.generic import ListView
 from django.views.generic.edit import CreateView,UpdateView,DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
-from .models import Project,ProjectComponent
+from .models import Project,ProjectComponent,ComponentTask
 
 # django form for creating a user 
 from .forms import UserCreationForm
@@ -24,7 +24,7 @@ def sign_up(request):
         if form.is_valid():
             user= form.save()
             login(request,user)
-            redirect('home')
+            return redirect('home')
     context['form'] = form
 
     return render(request,'registration/sign_up.html',context)
@@ -50,14 +50,50 @@ class ProjectCreate(LoginRequiredMixin,CreateView):
         # however when using a m2m relationship, the object needs to be saved FIRST, then relationships can be made.
         return redirect('project-list')
 
+# view to create project components
+class ProjectComponentCreate(LoginRequiredMixin,CreateView):
+    model = ProjectComponent
+    fields = ['name','description']
+    
+    def form_valid(self,form):
+        project = Project.objects.get(slug=self.kwargs['project_slug'])
+        form.instance.project = project
+        super().form_valid(form)
+
+        # this takes the models get_absolute_url and redirects to the URL
+        return redirect(project)
+
+class ComponentTaskCreate(LoginRequiredMixin,CreateView):
+    model = ComponentTask
+    fields = ['name']
+
+    def form_valid(self,form):
+        project_component = ProjectComponent.objects.get(slug=self.kwargs['project_component_slug'])
+        form.instance.project_component = project_component
+        super().form_valid(form)
+        return redirect(project_component)
+
+@login_required
+# view components of a project
 def project_detail_view(request,project_slug):
     project = Project.objects.filter(user=request.user).get(slug=project_slug)
-    project_components = ProjectComponent.objects.filter(belongs_to__name=project)
+    project_components = ProjectComponent.objects.filter(project__name=project)
     context = {
         'project':project,
         'project_components':project_components
     }
     return render(request,'assemble/project_detail.html',context)
 
+@login_required
+# view tasks of a component
 def project_component_detail_view(request,project_component_slug):
-    return render(request,'assemble/project_component.html')
+    component = ProjectComponent.objects.get(slug=project_component_slug)
+    component_tasks = ComponentTask.objects.filter(project_component__slug=project_component_slug)
+    context = {
+        'component_tasks':component_tasks,
+        'component':component,
+    }
+    return render(request,'assemble/project_component.html',context)
+
+def component_task_detail(request,project_component_slug,component_task_slug):
+    return render(request,'assemble/task_detail.html')

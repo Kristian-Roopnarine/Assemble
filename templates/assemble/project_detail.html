@@ -3,9 +3,12 @@
 
 {% block content %}
 <h1>Project Detail</h1>
-<h1>{{project.name}}</h1>
+<h1>{{ project.name }}</h1>
+<a href="{% url 'project-component-create' project.slug %}"> <strong>Create components </strong></a>
+<br>
+Current Project Components:
 {% for component in project_components %}
-<a href="{% url 'project-component-detail' component.slug %}">{{component.name}}</a>
+    <p><a href="{% url 'project-component-detail' component.slug %}">{{component.name}}</a></p>
 {% endfor %}
 
 {% endblock content %}
