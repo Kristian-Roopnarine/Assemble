@@ -64,8 +64,6 @@ class ProjectComponent(models.Model):
     def get_absolute_url(self):
         return reverse('project-component-detail',kwargs={'project_component_slug':self.slug}) 
     
-
-
 class ComponentTask(models.Model):
     name = models.CharField(max_length=100)
     completed=models.BooleanField(default=False)

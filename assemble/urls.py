@@ -1,6 +1,14 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from .views import sign_up,index,ProjectList,ProjectCreate,project_detail_view,project_component_detail_view,ProjectComponentCreate,ComponentTaskCreate,component_task_detail
+from .views import (
+    sign_up,index,
+    ProjectList,
+    ProjectCreate,
+    project_detail_view,
+    project_component_detail_view,
+    ProjectComponentCreate,
+    ProjectTaskCreate,
+    component_task_detail)
 
 urlpatterns = [
     path('',index,name='home'),
@@ -16,10 +24,11 @@ urlpatterns = [
 
     #create components for a specific project
     path('<project_slug>/project-component-create/',ProjectComponentCreate.as_view(),name="project-component-create"),
-
-    # create tasks for a component
-    path('<project_component_slug>/component-task-create/',ComponentTaskCreate.as_view(),name='create-task'),
-
     # displays one task
-    path('project-component-detail/<project_component_slug>/<component_task_slug>/',component_task_detail,name="component-task-detail")
+    path('project-component-detail/<project_component_slug>/<component_task_slug>/',component_task_detail,name="component-task-detail"),
+    
+    # create tasks for a component
+    path('<project_component_slug>/component-task-create/',ProjectTaskCreate.as_view(),name='create-task'),
+    
+    
 ]

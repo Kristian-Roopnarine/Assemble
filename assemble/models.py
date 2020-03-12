@@ -34,14 +34,14 @@ class Project(models.Model):
         super().save(*args,**kwargs)
     
     def get_absolute_url(self):
-        return reverse('project-list',kwargs={'project_slug':self.slug})
+        return reverse('project-detail',kwargs={'project_slug':self.slug})
 
 class ProjectComponent(models.Model):
     name = models.CharField(max_length=60)
     description = models.CharField(max_length=200)
     slug = models.SlugField(max_length=100,unique=True,blank=True,null=True)
     completed = models.BooleanField(default=False)
-    task = models.ForeignKey('self',null=True,blank=True,related_name="component",on_delete=models.CASCADE)
+    task = models.ForeignKey('self',null=True,default=None,related_name="component",on_delete=models.CASCADE)
     project = models.ForeignKey(Project,on_delete=models.CASCADE)
 
     def __str__(self):
@@ -62,7 +62,7 @@ class ProjectComponent(models.Model):
         super().save(*args,**kwargs)
     
     def get_absolute_url(self):
-        return reverse('project-component',kwargs={'project_comonent_slug':self.slug})
+        return reverse('project-component-detail',kwargs={'project_component_slug':self.slug})
 
 
 

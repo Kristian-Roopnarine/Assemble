@@ -3,7 +3,7 @@ from django.views.generic import ListView
 from django.views.generic.edit import CreateView,UpdateView,DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
-from .models import Project,ProjectComponent,ComponentTask
+from .models import Project,ProjectComponent
 
 # django form for creating a user 
 from .forms import UserCreationForm
@@ -63,21 +63,23 @@ class ProjectComponentCreate(LoginRequiredMixin,CreateView):
         # this takes the models get_absolute_url and redirects to the URL
         return redirect(project)
 
-class ComponentTaskCreate(LoginRequiredMixin,CreateView):
-    model = ComponentTask
-    fields = ['name']
+class ProjectTaskCreate(LoginRequiredMixin,CreateView):
+    model = ProjectComponent
+    fields = ['name','description']
 
     def form_valid(self,form):
-        project_component = ProjectComponent.objects.get(slug=self.kwargs['project_component_slug'])
-        form.instance.project_component = project_component
+        component = ProjectComponent.objects.get(slug=self.kwargs['project_component_slug'])
+        form.instance.project = component.project
+        form.instance.task = component
         super().form_valid(form)
-        return redirect(project_component)
+        return redirect(component)
 
 @login_required
+
 # view components of a project
 def project_detail_view(request,project_slug):
     project = Project.objects.filter(user=request.user).get(slug=project_slug)
-    project_components = ProjectComponent.objects.filter(project__name=project)
+    project_components = ProjectComponent.objects.filter(project__name=project).filter(task=None)
     context = {
         'project':project,
         'project_components':project_components
@@ -88,7 +90,7 @@ def project_detail_view(request,project_slug):
 # view tasks of a component
 def project_component_detail_view(request,project_component_slug):
     component = ProjectComponent.objects.get(slug=project_component_slug)
-    component_tasks = ComponentTask.objects.filter(project_component__slug=project_component_slug)
+    component_tasks = component.component.all()
     context = {
         'component_tasks':component_tasks,
         'component':component,
