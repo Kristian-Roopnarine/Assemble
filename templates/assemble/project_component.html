@@ -15,10 +15,17 @@
 {% endblock breadcrumb %}
 
 {% block content %}
-<h1>Project Component <a class="btn btn-warning" href="{% url 'create-task' component.slug %}">Create tasks</a></h1>
+<div class="container text-center">
+    <h1>{{ component.name }} <a class="btn btn-warning" href="{% url 'create-task' component.slug %}">Create tasks</a></h1>
 
-{% for task in component_tasks %}
-    <p>{{ task.name }}</p>
-{% endfor %}
-
+    <div class="row justify-content-center">
+        {% for task in component_tasks %}
+            <div class="col-3">
+                <div class="card text-white bg-danger mb-3">
+                    <div class="card-header">{{ task.name }}</div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
 {% endblock content %}
