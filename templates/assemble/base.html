@@ -8,6 +8,22 @@
 
 </head>
 <body>
+
+    {% include 'assemble/navbar.html' %}
+    
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            {% block breadcrumb %}
+            {% endblock breadcrumb%}
+            <li class="breadcrumb-item"><a href="#">Home</a></li>
+            <li class="breadcrumb-item"><a href="#">Library</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Data</li>
+        </ol>
+    </nav>
+    
+
+
+
     {% block content %}
 
     {% endblock content %}
