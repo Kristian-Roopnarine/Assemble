@@ -75,7 +75,6 @@ class ProjectTaskCreate(LoginRequiredMixin,CreateView):
         return redirect(component)
 
 @login_required
-
 # view components of a project
 def project_detail_view(request,project_slug):
     project = Project.objects.filter(user=request.user).get(slug=project_slug)
