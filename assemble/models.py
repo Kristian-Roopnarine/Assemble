@@ -3,14 +3,9 @@ from django.contrib.auth.models import User
 from django.utils.text import slugify
 from django.urls import reverse
 
-
-
-"""
-TODO: convert the models to have recursive relationships.
-
 class ProjectTest(models.Model):
     name = models.CharField(max_length=60)
-    description = models.TextField(max_length=400) maybe not textfield?
+    description = models.TextField(max_length=400)
     user = models.ManyToManyField(User)
 
     # these many parameters because of how the m2m is saved
@@ -28,7 +23,7 @@ class ProjectTest(models.Model):
         slug = slugify(self.name)
         unique_slug = slug
         num = 1
-        while Project.objects.filter(slug=unique_slug).exists():
+        while ProjectTest.objects.filter(slug=unique_slug).exists():
             unique_slug=f"{slug}-{num}"
             num += 1
         return unique_slug
@@ -39,14 +34,15 @@ class ProjectTest(models.Model):
         super().save(*args,**kwargs)
     
     def get_absolute_url(self):
-        return reverse('project-list',kwargs={'project_slug':self.slug})
+        return reverse('project-list-test',kwargs={'project_test_slug':self.slug})
 
 class ProjectComponentTest(models.Model):
     name = models.CharField(max_length=60)
     description = models.CharField(max_length=200)
+    user = models.ManyToManyField(User)
     slug = models.SlugField(max_length=100,unique=True,blank=True,null=True)
     completed = models.BooleanField(default=False)
-    component = models.ForeignKey('self',null=True,related_name="component")
+    task = models.ForeignKey('self',null=True,blank=True,related_name="component",on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
@@ -55,7 +51,7 @@ class ProjectComponentTest(models.Model):
         slug = slugify(self.name)
         unique_slug = slug
         num = 1
-        while Project.objects.filter(slug=unique_slug).exists():
+        while ProjectComponentTest.objects.filter(slug=unique_slug).exists():
             unique_slug=f"{slug}-{num}"
             num += 1
         return unique_slug
@@ -66,11 +62,9 @@ class ProjectComponentTest(models.Model):
         super().save(*args,**kwargs)
     
     def get_absolute_url(self):
-        return reverse('project-list',kwargs={'project_slug':self.slug})
+        return reverse('project-component-test',kwargs={'project_comonent_test_slug':self.slug})
 
 
-
-"""
 
 # Create your models here.
 class Project(models.Model):
