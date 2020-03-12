@@ -1,5 +1,5 @@
 {% extends 'assemble/base.html' %}
-
+{% load crispy_forms_tags %}
 {% block content %}
 {% comment %}
 original login form
@@ -35,21 +35,11 @@ original login form
                         <form method="post">
                             {% csrf_token %}
                             <div class="input-group mb-3">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">
-                                        <i class="fa fa-user"></i>
-                                    </span>
-                                </div>
-                                {{ form.username }}
+                                {{ form.username|as_crispy_field }}
                                 {#<input class="form-control" type="text" placeholder="Username">#}
                             </div>
                             <div class="input-group mb-4">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">
-                                        <i class="fa fa-key"></i>
-                                    </span>
-                                </div>
-                                {{ form.password }}
+                                {{ form.password|as_crispy_field }}
                             </div>
 
                             <div class="row">

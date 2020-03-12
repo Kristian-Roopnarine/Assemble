@@ -6,6 +6,8 @@ from django.contrib.auth.forms import UsernameField
 from django.utils.translation import gettext, gettext_lazy as _
 from .models import Project,ProjectComponent
 from django import forms
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout,Field
 
 class UserCreationForm(forms.ModelForm):
     """
@@ -32,11 +34,20 @@ class UserCreationForm(forms.ModelForm):
         model = User
         fields = ("username",)
         field_classes = {'username':UsernameField}
+    
+    
 
     def __init__(self,*args,**kwargs):
         super().__init__(*args,**kwargs)
         if self._meta.model.USERNAME_FIELD in self.fields:
             self.fields[self._meta.model.USERNAME_FIELD].widget.attrs['autofocus'] = True
+        self.helper = FormHelper()
+        self.helper.form_class = 'form-group'
+        self.helper.layout = Layout(
+            Field('username',css_class='form-control mb-4'),
+            Field('password1',css_class='form-control mb-3'),
+            Field('password2',css_class='form-control mb-4')
+        )
 
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1")

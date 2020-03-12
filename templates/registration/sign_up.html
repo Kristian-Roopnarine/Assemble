@@ -1,27 +1,19 @@
 {% extends 'assemble/base.html' %}
 {% load crispy_forms_tags %}
+{% crispy form form.helper %}
 {% block content %}
 
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h1>Sign Up</h1>
+            <div class="card mx-4">
+                <div class="card-body p-4">
+                    <h1>Register</h1>
                     <p class="text-muted">Sign up to access Assemble</p>
                     <form method="post" action="{% url 'sign-up' %}">
+
                         {% csrf_token %}
-                        <div class="input-group mb-3">
-                            {{form.username.label}}: {{ form.username }}
-                        </div>
-                        <div class="input-group mb-3">
-                            {{form.password1.label}} : 
-                            {{form.password1}}
-                        </div>
-                        <div class="input-group mb-3">
-                            {{form.password2.label}} : 
-                            {{form.password2}}
-                        </div>
+                        {% crispy form %}
                         <button type="submit" class="btn btn-primary">Create new account</button>
                     </form>
                 </div>
