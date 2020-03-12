@@ -1,4 +1,4 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect,get_object_or_404
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView,UpdateView,DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -99,3 +99,10 @@ def project_component_detail_view(request,project_component_slug):
 
 def component_task_detail(request,project_component_slug,component_task_slug):
     return render(request,'assemble/task_detail.html')
+
+def finish_task_detail(request,id):
+    task = get_object_or_404(ProjectComponent,id=id)
+    before=task.completed
+    task.completed= not before
+    task.save()
+    return redirect(task.project)

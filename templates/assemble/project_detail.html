@@ -15,17 +15,98 @@
 {% block content %}
 <div class="container text-center">
     <h1>{{ project.name }} <a class="btn btn-warning" href="{% url 'project-component-create' project.slug %}">Add Project Components</a></h1>
-
-    <div class="row justify-content-center">
+    {% comment %}
+    <div class="row justify-content-center mt-3">
         {% for component in project_components %}
-        <a href="{% url 'project-component-detail' component.slug %}" style="text-decoration:none;">
-            <div class="col">
+            <div class="col-3">
                 <div class="card text-white bg-warning mb-3">
-                    <div class="card-header"> {{ component.name }}</div>
+                    <div class="card-header"><a href="{% url 'project-component-detail' component.slug %}" style="text-decoration:none;color:white;"> {{ component.name }}</a></div>
                 </div>
+            {% for task in component.component.all %}
+                <div class="row justify-content-center">
+                    <div class="card text-white bg-danger mb-3">
+                        <div class="card-header">
+                            {{task.name}}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
             </div>
-        </a>
         {% endfor %}
     </div>
+    {% endcomment %}
+
+    
+        {% for component in project_components %}
+            <div id="toggle-{{component.slug}}" class="mb-3">
+                <div class="col-5">
+                    {#<div class="card">#}
+                        <div class="card-header" id="heading-{{component.slug}}">
+                            <h5>
+                                <button class="btn btn-link" data-toggle="collapse" data-target="#collapse-{{component.slug}}" aria-expanded = "true" aria-controls="collapse-{{component.slug}}">
+                                    {{component.name}}
+                                </button>
+                            </h5>
+                        </div>
+
+                        <div id="collapse-{{component.slug}}" class="collapse mt-2" aria-labelledby="heading-{{component.slug}}" data-parent="#toggle-{{component.slug}}">
+                            {% for task in component.component.all %}
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                    {% if task.completed == False%}
+                                        <div class="card text-white bg-danger mb-3">
+                                            <div class="card-header">
+                                                {{task.name}}
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <div class="card text-white bg-success mb-3">
+                                            <div class="card-header">
+                                                {{task.name}}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                    </div>
+                                    <div class="col-2 mb-3 px-0 text-left">
+                                        <a href="{% url 'finish-task' task.id %}"><span style="font-size:1.3em;color:green;"><i class="fa fa-check"></i></span></a>
+                                        <span style="font-size:1.3em;color:red;"><i class="fa fa-trash"></i></span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {#</div>#}
+                </div>
+            </div>
+        {% endfor %}
+    
+
 </div>
 {% endblock content %}
+
+
+{% comment %}
+<div id="accordion">
+    <div class="card">
+        <div class="card-header" id="heading-{{component.name}}">
+            <h5 class="mb-0">
+                <button class="btn btn-link" data-toggle="collapse" data-target="#collapse-{{component.name}}" aria-expanded = "true" aria-controls="collapse-{{component.name}}">
+                    {{component.name}}
+                </button>
+            </h5>
+        </div>
+
+        <div id="collapse-{{component.name}}" class="collapse" aria-labelledby="heading-{{component.name}}" data-parent="#accordion">
+            {% for task in component.component.all %}
+                <div class="row justify-content-center">
+                    <div class="card text-white bg-danger mb-3">
+                        <div class="card-header">
+                            {{task.name}}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+{% endcomment %}

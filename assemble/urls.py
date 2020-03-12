@@ -8,7 +8,10 @@ from .views import (
     project_component_detail_view,
     ProjectComponentCreate,
     ProjectTaskCreate,
-    component_task_detail)
+    component_task_detail,
+    finish_task_detail,
+    
+    )
 
 urlpatterns = [
     path('',index,name='home'),
@@ -29,6 +32,9 @@ urlpatterns = [
     
     # create tasks for a component
     path('<project_component_slug>/component-task-create/',ProjectTaskCreate.as_view(),name='create-task'),
+
+    #updates task completed
+    path('finish-task/<id>/',finish_task_detail,name="finish-task"),
     
     
 ]
