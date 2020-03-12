@@ -1,5 +1,16 @@
 {% extends 'assemble/base.html' %}
 
+{% block breadcrumb %}
+    <li class="breadcrumb-item">
+        <a href="{% url 'project-list' %}">
+            Your Projects
+        </a>
+    </li>
+    <li class="breadcrumb-item">
+        <a href="{% url 'project-detail' project.slug %}"> {{ project.name }} </a>
+    </li>
+{% endblock breadcrumb %}
+
 
 {% block content %}
 <h1>Project Detail</h1>
