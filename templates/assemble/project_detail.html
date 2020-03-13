@@ -1,4 +1,5 @@
 {% extends 'assemble/base.html' %}
+{% load crispy_forms_tags %}
 
 {% block breadcrumb %}
     <li class="breadcrumb-item">
@@ -18,52 +19,6 @@
     <h1>{{ project.name }} <a class="btn btn-warning" href="{% url 'project-component-create' project.slug %}">Add Project Components</a></h1>
 </div>
     <div class="row text-center flex-nowrap">
-    {% comment %}
-        {% for component in project_components %}
-            <div class="d-flex">
-                <div id="toggle-{{component.slug}}" class="mb-3">
-                    <div class="col">
-                            <div class="card-header" id="heading-{{component.slug}}">
-                                <h5 class="d-line">
-                                    <button class="btn btn-link" data-toggle="collapse" data-target="#collapse-{{component.slug}}" aria-expanded = "true" aria-controls="collapse-{{component.slug}}">
-                                        {{component.name}}
-                                    </button>
-                                </h5>
-                                {# use this button to control showing other items #}
-                                {# anything with class of collapse and correct data-target will work #}
-                                <button class="btn btn-success btn-sm btn-link text-white" data-toggle = "collapse" data-target = "#collapse-test" aria-expanded = "true" aria-controls= "collapse-test" style="text-decoration:none;"><i class="fa fa-plus"></i> Create Tasks</a>
-                            </div>
-
-                            <div id="collapse-{{component.slug}}" class="collapse mt-2" aria-labelledby="heading-{{component.slug}}" data-parent="#toggle-{{component.slug}}">
-                                {% for task in component.component.all %}
-                                    <div class="row align-items-center">
-                                        <div class="col">
-                                        {% if task.completed == False %}
-                                            <div class="card text-white bg-danger mb-3">
-                                                <div class="card-header">
-                                                    {{task.name}}
-                                                </div>
-                                            </div>
-                                        {% else %}
-                                            <div class="card text-white bg-success mb-3">
-                                                <div class="card-header">
-                                                    {{task.name}}
-                                                </div>
-                                            </div>
-                                        {% endif %}
-                                        </div>
-                                        <div class="col-2 mb-3 px-0 text-left">
-                                            <a href="{% url 'finish-task' task.id %}"><span style="font-size:1.3em;color:green;"><i class="fa fa-check"></i></span></a>
-                                            <span style="font-size:1.3em;color:red;"><i class="fa fa-trash"></i></span>
-                                        </div>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                    </div>
-                </div>
-            </div>
-        {% endfor %}
-        {% endcomment %}
         {% for component in project_components %}
                 <div class="col-md-3">
                     <div class="card">    
@@ -79,62 +34,15 @@
                                         <li class="list-group-item border mb-2 rounded-0 list-group-item-danger">{{task.name}}</li>
                                     {% endif %}
                                 {% endfor %}
-                                <button class="btn btn-success btn-sm btn-link text-white mb-2" style="text-decoration:none;"><i class="fa fa-plus"></i> Create Tasks</a>
+                                <a class="btn btn-success btn-sm text-white mb-2" data-toggle="modal" data-target="#component-{{component.slug}}" href="{% url 'create-task' component.slug %}"><i class="fa fa-plus"></i> Create Tasks</a>
                             </ul>
                         </div>
                     </div>
                 </div>
-            
+                {% include 'assemble/modal_task_form.html' with component=component %}
         {% endfor %}
     </div>
 
-{% comment %}
-{# exactly that I want each component to look like! #}
-{% for component in project_components %}
-<div class="card">    
-    <div class="card-header mb-2">
-        Test component
-    </div>
-    <div class="list-group">
-        <ul class="list-group px-3">
-            {% for task in component.component.all %}
-                {% if task.completed =='True' %}
-                    <li class="list-group-item border mb-2 rounded-0 list-group-item-success">{{task.name}}</li>
-                {% else %}
-                    <li class="list-group-item border mb-2 rounded-0 list-group-item-danger">{{task.name}}</li>
-                {% endif %}
-            {% endfor %}
-        </ul>
-    </div>
-</div>
-{% endfor %}
-{% endcomment %}
+
+
 {% endblock content %}
-
-
-{% comment %}
-<div id="accordion">
-    <div class="card">
-        <div class="card-header" id="heading-{{component.name}}">
-            <h5 class="mb-0">
-                <button class="btn btn-link" data-toggle="collapse" data-target="#collapse-{{component.name}}" aria-expanded = "true" aria-controls="collapse-{{component.name}}">
-                    {{component.name}}
-                </button>
-            </h5>
-        </div>
-
-        <div id="collapse-{{component.name}}" class="collapse" aria-labelledby="heading-{{component.name}}" data-parent="#accordion">
-            {% for task in component.component.all %}
-                <div class="row justify-content-center">
-                    <div class="card text-white bg-danger mb-3">
-                        <div class="card-header">
-                            {{task.name}}
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-
-    </div>
-</div>
-{% endcomment %}

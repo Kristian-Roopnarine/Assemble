@@ -66,6 +66,7 @@ class ProjectComponentCreate(LoginRequiredMixin,CreateView):
 class ProjectTaskCreate(LoginRequiredMixin,CreateView):
     model = ProjectComponent
     fields = ['name','description']
+    template_name = "assemble/modal_task_form.html"
 
     def form_valid(self,form):
         component = ProjectComponent.objects.get(slug=self.kwargs['project_component_slug'])
@@ -79,6 +80,7 @@ class ProjectTaskCreate(LoginRequiredMixin,CreateView):
 def project_detail_view(request,project_slug):
     project = Project.objects.filter(user=request.user).get(slug=project_slug)
     project_components = ProjectComponent.objects.filter(project__name=project).filter(task=None)
+
     context = {
         'project':project,
         'project_components':project_components
