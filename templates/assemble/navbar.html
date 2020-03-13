@@ -1,25 +1,31 @@
-
-<nav class="nav navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="{% url 'home'%} ">Assemble</a>
-
-    <ul class="nav">
-        <li class="nav-item">
-            <a class="nav-link active" href="{% url 'home' %}">Home</a>
-        </li>
-        {% if user.is_authenticated %}
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'project-list' %}">Your Projects</a>
-            </li>
-        {% else %}
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'login' %}">Login</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'sign-up' %}">Sign up</a>
-            </li>      
-        {% endif %}
-    </ul>
-</nav>
+{#<nav class="navbar navbar-expand-sm navbar-dark bg-primary flex-row flex-nowrap">#}
+<div class="col-sm-2 px-0">
+    <nav class="navbar vertical-nav-left bg-primary px-2 flex-sm-column flex-row">
+        {#<div class="navbar sticky-top flex-sm-column flex-row">#}
+        <ul class="navbar-nav">
+            <li class="nav-item"><a class="navbar-brand text-white" href="{% url 'home'%} ">Assemble</a></li>
+            <li class="nav-item"><a class="nav-link active text-white" href="{% url 'home' %}">Home</a></li>
+            {% if user.is_authenticated %}
+                <li class="nav-item"><a class="nav-link nav-item text-white" href="{% url 'logout' %}">Logout</a></li>
+                <li class="nav-item"><a class="nav-link text-white" href="{% url 'project-list' %}">Your Projects</a></li>
+            {% else %}
+                <li class="nav-item"><a class="nav-link text-white" href="{% url 'login' %}">Login</a></li>
+                <li class="nav-item"><a class="nav-link text-white" href="{% url 'sign-up' %}">Sign up</a></li>       
+            {% endif %}
+            <nav class="px-2 flex-sm-column flex-row">
+                <ul class="navbar-nav">
+                    {% block breadcrumb %}
+                        <p class="text-white">___________________</p>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="{% url 'project-list' %}">
+                                List of Projects
+                            </a>
+                        </li>
+                    {% endblock breadcrumb %}
+                </ol>
+            </nav>
+        </ul>
+       {#</div>#}
+    </nav>
+    
+</div>

@@ -3,18 +3,18 @@
 {% block breadcrumb %}
     <li class="breadcrumb=item">
         <a href="{% url 'project-list' %}">
-            Your Projects
+            List of Projects
         </a>
     </li>
 {% endblock breadcrumb %}
 
 {% block content %}
-<div class="container text-center">
+<div class="text-center">
     <h1>Project List <a class="btn btn-warning" href="{% url 'project-create' %}">Add project</a></h1>
 </div>
 
-<div class="container text-center">
-    <div class="row justify-content-center">
+<div class="text-center">
+    <div class="row">
         {% for project in project_list %}
             <div class="col">
                 <div class="card border-primary mb-3">
