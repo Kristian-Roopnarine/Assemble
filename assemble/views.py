@@ -49,7 +49,7 @@ class ProjectCreate(LoginRequiredMixin,CreateView):
         # before it returned super().form_valid(form)
         # however when using a m2m relationship, the object needs to be saved FIRST, then relationships can be made.
         return redirect('project-list')
-
+        
 # view to create project components
 class ProjectComponentCreate(LoginRequiredMixin,CreateView):
     model = ProjectComponent
@@ -62,18 +62,29 @@ class ProjectComponentCreate(LoginRequiredMixin,CreateView):
 
         # this takes the models get_absolute_url and redirects to the URL
         return redirect(project)
+    
+    def get_context_data(self,**kwargs):
+        context= super().get_context_data(**kwargs)
+        project = Project.objects.get(slug=self.kwargs['project_slug'])
+        context['project'] = project
+        return context
 
 class ProjectTaskCreate(LoginRequiredMixin,CreateView):
     model = ProjectComponent
     fields = ['name','description']
-    template_name = "assemble/modal_task_form.html"
 
     def form_valid(self,form):
         component = ProjectComponent.objects.get(slug=self.kwargs['project_component_slug'])
         form.instance.project = component.project
         form.instance.task = component
         super().form_valid(form)
-        return redirect(component)
+        return redirect(component.project)
+    
+    def get_context_data(self,**kwargs):
+        context= super().get_context_data(**kwargs)
+        component = ProjectComponent.objects.get(slug=self.kwargs['project_component_slug'])
+        context['project'] = component
+        return context
 
 @login_required
 # view components of a project

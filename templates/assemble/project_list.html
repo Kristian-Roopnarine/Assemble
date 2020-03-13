@@ -9,23 +9,23 @@
 {% endblock breadcrumb %}
 
 {% block content %}
-<div class="text-center">
-    <h1>Project List <a class="btn btn-warning" href="{% url 'project-create' %}">Add project</a></h1>
+<div class="text-center my-3">
+    <h1>Project List <a class="btn btn-info" href="{% url 'project-create' %}">Add project</a></h1>
 </div>
 
 <div class="text-center">
-    <div class="row">
+    <div class="row justify-content-center">
         {% for project in project_list %}
-            <div class="col">
-                <div class="card border-primary mb-3">
-                    <div class="card-header">
-                        <h5 class="card-title"><a href="{% url 'project-detail' project.slug %}">{{ project.name }}</a></h5>
+            <div class="col-sm-3 col-md-3">
+                <a class="text-white" style="text-decoration:none;" href="{% url 'project-detail' project.slug %}">
+                    <div class="card text-white bg-secondary mb-3" style="max-width: 18rem;">
+                        <div class="card-header">{{ project.name }}</div>
+                        <div class="card-body">
+                            <p class="card-text">{{project.description}}</p>
+                        </div>
                     </div>
-                    <div class="card-body text-primary">
-                        <p class="card-text">{{ project.description }}</p>
-                    </div>
-                </div>
-            </div>
+                </a>
+            </div>            
         {% endfor %}
     </div>
 </div>
