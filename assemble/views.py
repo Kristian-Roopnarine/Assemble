@@ -11,6 +11,7 @@ from .forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login,logout
 from django.db.models import Q
+from django.contrib.auth.models import User
 # Create your views here.
 
 # home
@@ -41,7 +42,7 @@ class ProjectList(LoginRequiredMixin,ListView):
 # view to create more projects
 class ProjectCreate(LoginRequiredMixin,CreateView):
     model = Project
-    fields = ['name','description']
+    fields = ['name','description','user']
     success_url = reverse_lazy('project-list')
 
     def form_valid(self,form):
@@ -114,9 +115,11 @@ def project_component_detail_view(request,project_component_slug):
     }
     return render(request,'assemble/project_component.html',context)
 
+@login_required
 def component_task_detail(request,project_component_slug,component_task_slug):
     return render(request,'assemble/task_detail.html')
 
+@login_required
 def finish_task_detail(request,id):
     task = get_object_or_404(ProjectComponent,id=id)
     before=task.completed
@@ -124,6 +127,7 @@ def finish_task_detail(request,id):
     task.save()
     return redirect(task.project)
 
+@login_required
 def delete_task(request,id):
     task = get_object_or_404(ProjectComponent,id=id)
     task.delete()
@@ -133,8 +137,8 @@ def delete_task(request,id):
 def profile(request):
     current_projects = Project.objects.filter(user=request.user)
     profile = Profile.objects.get(user__username=request.user)
+    #queryset containing all friend request objects
     friend_requests = FriendRequest.objects.filter(Q(to_user__username=request.user.username) | Q(from_user__username=request.user.username))
-    print(friend_requests)
     context={
         'current_projects':current_projects,
         'profile':profile,
@@ -143,15 +147,34 @@ def profile(request):
     }
     return render(request,'assemble/profile.html',context)
 
+@login_required
 def profile_view(request,slug):
     p = Profile.objects.filter(slug=slug).first()
-    u = p.user
+    is_me = Profile.objects.get(user__username=request.user)
+    search_query = p.user
+    try:
+        frequest = FriendRequest.objects.get(
+            to_user=search_query,
+            from_user=request.user,
+        )
+        sent_request = True
+    except ObjectDoesNotExist:
+        sent_request = False
+
+    try:
+        Profile.objects.filter(slug=slug).get(friends=is_me)
+        already_friends=True
+    except ObjectDoesNotExist:
+        already_friends=False
     context={
-        'u':u
+        'search_query':search_query,
+        'sent_request':sent_request,
+        'already_friends':already_friends
     }
     return render(request,'assemble/profile_view.html',context)
 
 
+@login_required
 def search_user(request):
     try:
         filtered_user = Profile.objects.get(user__username=request.POST['username'])
@@ -167,16 +190,41 @@ def search_user(request):
 
 @login_required
 def send_friend_request(request,sent_to):
+    # create a friend request object
+    # link the to_user and from_user
+    # to_user = visiting profile
+    # from_user = request.user
     user = get_object_or_404(Profile,user__username=sent_to)
-    frequest = FriendRequest.objects.get_or_create(
+    frequest,created = FriendRequest.objects.get_or_create(
         to_user=user.user,
         from_user=request.user,
     )
     return redirect('profile-view',slug=user.slug)
 
+@login_required
+def accept_friend_request(request,from_user):
+    # get the from user in the db
+    user = get_object_or_404(Profile,user__username=from_user)
 
-    # create a friend request object
-    # link the to_user and from_user
-    # to_user = visiting profile
-    # from_user = request.user
+    #get me from the db
+    is_me = Profile.objects.get(user__username=request.user.username)
     
+    # add from_user to your friend list
+    is_me.friends.add(user)
+    # add your profile to their friend list
+    user.friends.add(is_me)
+    frequest = FriendRequest.objects.get(from_user=user.user,to_user=is_me.user)
+
+    # save
+    is_me.save()
+    user.save()
+    # if succesful redirect to delete request
+    return redirect('delete-friend-request',frequest.id)
+
+@login_required
+def delete_friend_request(request,id):
+    frequest= FriendRequest.objects.get(id=id)
+    frequest.delete()
+    # delete
+    # redirect to user profile
+    return redirect('profile')

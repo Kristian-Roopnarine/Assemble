@@ -25,9 +25,7 @@
             <ul class="list-group">
             {% if profile.friends.all.count != 0 %}
                 {% for friend in profile.friends.all %}
-                    <li class="list-group-item d-flex justify-content-between align-items-center border rounded-0 list-group-item">Friend 1</li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center border rounded-0 list-group-item">Friend 2</li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center border rounded-0 list-group-item">Friend 3</li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center border rounded-0 list-group-item"> {{friend}} </li>
                 {% endfor %}
             {% else %}
                     <li class="list-group-item d-flex justify-content-between align-items-center border rounded-0 list-group-item">Search for a friend in the top right!</li>
@@ -46,13 +44,14 @@
                     {% if requests.to_user.username == user.username %}
                         <li class="list-group-item d-flex justify-content-between align-items-center border rounded-0 list-group-item">
                             {{ requests.from_user }} wants to be your friend!
-                            <a class="btn btn-success btn-sm" href="#">Accept</a>
+                            <a class="btn btn-success btn-sm mr-1" href="{% url 'accept-friend-request' requests.from_user.username %}">Accept</a>
+                            <a class="btn btn-danger btn-sm" href="{% url 'delete-friend-request' requests.id %}">Decline</a>
                         </li>
                         
                     {% else %}
                         <li class="list-group-item d-flex justify-content-between align-items-center border rounded-0 list-group-item">
                             Request to {{requests.to_user}} pending.
-                            <a class="btn btn-danger btn-sm" href="#">Remove</a>
+                            <a class="btn btn-danger btn-sm" href="{% url 'delete-friend-request' requests.id %}">Remove</a>
                         </li>
                     {% endif %}
                 {% endfor %}

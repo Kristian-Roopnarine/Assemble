@@ -14,7 +14,9 @@ from .views import (
     profile,
     search_user,
     send_friend_request,
-    profile_view
+    profile_view,
+    accept_friend_request,
+    delete_friend_request
     
     )
 
@@ -45,6 +47,9 @@ urlpatterns = [
     path('search/',search_user,name="search-user"),
 
     path('search/send-friend-request/<sent_to>/',send_friend_request,name="send-friend-request"),
+    path('profile/accept-friend-request/<from_user>/',accept_friend_request,name='accept-friend-request'),
+    path('profile/delete-friend-request/<id>/',delete_friend_request,name="delete-friend-request"),
+
     path('search/profile/<slug>/',profile_view,name="profile-view")
     
     
