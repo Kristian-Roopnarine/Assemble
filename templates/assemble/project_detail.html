@@ -19,7 +19,7 @@
     {% include 'assemble/messages.html' %}
     <h1>{{ project.name }}</h1>
 </div>
-    <div class="row text-center flex-nowrap">
+    <div class="row text-center flex-nowrap" style="overflow-x:auto;">
         <div class="col-md-2">
             <a class="btn btn-info btn-sm text-white mb-2" href="{% url 'project-component-create' project.slug %}"><i class="fa fa-plus"></i> Create Project Components</a>   
         </div>

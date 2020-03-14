@@ -61,7 +61,7 @@ class ProjectComponentCreate(LoginRequiredMixin,CreateView):
         project = Project.objects.get(slug=self.kwargs['project_slug'])
         form.instance.project = project
         super().form_valid(form)
-        messages.success(self.request,f"Added {form.instance.name} to {project.name}")
+        messages.success(self.request,f"Added '{form.instance.name}' to {project.name}")
 
         # this takes the models get_absolute_url and redirects to the URL
         return redirect(project)
@@ -82,7 +82,7 @@ class ProjectTaskCreate(LoginRequiredMixin,CreateView):
         form.instance.project = component.project
         form.instance.task = component
         super().form_valid(form)
-        messages.success(self.request,f"Added {form.instance.name} to {form.instance.task}")
+        messages.success(self.request,f"Added '{form.instance.name}' to '{form.instance.task}'")
         return redirect(component.project)
     
     def get_context_data(self,**kwargs):
@@ -127,3 +127,12 @@ def delete_task(request,id):
     task = get_object_or_404(ProjectComponent,id=id)
     task.delete()
     return redirect(task.project)
+
+@login_required
+def profile(request):
+    current_projects = Project.objects.filter(user=request.user)
+    context={
+        'current_projects':current_projects
+    }
+    return render(request,'assemble/profile.html',context)
+

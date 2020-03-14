@@ -10,7 +10,8 @@ from .views import (
     ProjectTaskCreate,
     component_task_detail,
     finish_task_detail,
-    delete_task
+    delete_task,
+    profile
     
     )
 
@@ -36,7 +37,8 @@ urlpatterns = [
 
     #updates task completed
     path('finish-task/<id>/',finish_task_detail,name="finish-task"),
-    path('delete-task/<id>/',delete_task,name="delete-task")
+    path('delete-task/<id>/',delete_task,name="delete-task"),
+    path('profile/',profile,name='profile')
     
     
 ]

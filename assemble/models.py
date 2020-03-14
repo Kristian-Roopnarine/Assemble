@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.text import slugify
 from django.urls import reverse
+from django.db.models.signals import post_save
 
 class Project(models.Model):
     name = models.CharField(max_length=60)
@@ -66,5 +67,41 @@ class ProjectComponent(models.Model):
 
 
 
+class Profile(models.Model):
+    user = models.OneToOneField(User,on_delete=models.CASCADE)
+    slug = models.SlugField()
+    friends = models.ManyToManyField('Profile',blank=True)
 
+    def __str__(self):
+        return str(self.user.username)
+
+    def _get_unique_slug(self):
+        slug = slugify(self.user.username)
+        unique_slug = slug
+        num = 1
+        while Profile.objects.filter(slug=unique_slug).exists():
+            unique_slug=f"{slug}-{num}"
+            num += 1
+        return unique_slug
     
+    def save(self,*args,**kwargs):
+        if not self.slug:
+            self.slug=self._get_unique_slug()
+        super().save(*args,**kwargs)
+    
+def post_save_user_model_receiver(sender,instance,created,*args,**kwargs):
+    if created:
+        try:
+            Profile.objects.create(user=instace)
+        except:
+            pass
+
+post_save.connect(post_save_user_model_receiver,sender=User)
+
+class FriendRequest(models.Model):
+    to_user = models.ForeignKey(User,related_name = 'to_user',on_delete=models.CASCADE)
+    from_user = models.ForeignKey(User,related_name ='from_user',on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"From {self.from_user} to {self.to_user}. Sent {self.timestamp}"    
