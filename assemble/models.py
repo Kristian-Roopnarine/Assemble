@@ -37,8 +37,8 @@ class Project(models.Model):
         return reverse('project-detail',kwargs={'project_slug':self.slug})
 
 class ProjectComponent(models.Model):
-    name = models.CharField(max_length=60)
-    description = models.CharField(max_length=200)
+    name = models.CharField(max_length=200)
+    description = models.CharField(max_length=200,blank=True)
     slug = models.SlugField(max_length=100,unique=True,blank=True,null=True)
     completed = models.BooleanField(default=False)
     task = models.ForeignKey('self',null=True,default=None,related_name="component",on_delete=models.CASCADE)

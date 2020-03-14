@@ -4,6 +4,7 @@ from django.views.generic.edit import CreateView,UpdateView,DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from .models import Project,ProjectComponent
+from django.contrib import messages
 
 # django form for creating a user 
 from .forms import UserCreationForm
@@ -48,6 +49,7 @@ class ProjectCreate(LoginRequiredMixin,CreateView):
         # needs to return a HttpResponse Object
         # before it returned super().form_valid(form)
         # however when using a m2m relationship, the object needs to be saved FIRST, then relationships can be made.
+        messages.success(self.request,f"Created {form.instance.name}")
         return redirect('project-list')
         
 # view to create project components
@@ -59,6 +61,7 @@ class ProjectComponentCreate(LoginRequiredMixin,CreateView):
         project = Project.objects.get(slug=self.kwargs['project_slug'])
         form.instance.project = project
         super().form_valid(form)
+        messages.success(self.request,f"Added {form.instance.name} to {project.name}")
 
         # this takes the models get_absolute_url and redirects to the URL
         return redirect(project)
@@ -71,19 +74,21 @@ class ProjectComponentCreate(LoginRequiredMixin,CreateView):
 
 class ProjectTaskCreate(LoginRequiredMixin,CreateView):
     model = ProjectComponent
-    fields = ['name','description']
+    fields = ['name']
+    template_name = "assemble/componenttask_form.html"
 
     def form_valid(self,form):
         component = ProjectComponent.objects.get(slug=self.kwargs['project_component_slug'])
         form.instance.project = component.project
         form.instance.task = component
         super().form_valid(form)
-        return redirect(component.project)
+        messages.success(self.request,f"Added {form.instance.name} to {form.instance.task}")
+        return redirect('create-task',project_component_slug=component.slug)
     
     def get_context_data(self,**kwargs):
         context= super().get_context_data(**kwargs)
         component = ProjectComponent.objects.get(slug=self.kwargs['project_component_slug'])
-        context['project'] = component
+        context['component'] = component
         return context
 
 @login_required
@@ -91,10 +96,9 @@ class ProjectTaskCreate(LoginRequiredMixin,CreateView):
 def project_detail_view(request,project_slug):
     project = Project.objects.filter(user=request.user).get(slug=project_slug)
     project_components = ProjectComponent.objects.filter(project__name=project).filter(task=None)
-
     context = {
         'project':project,
-        'project_components':project_components
+        'project_components':project_components,
     }
     return render(request,'assemble/project_detail.html',context)
 
@@ -117,4 +121,9 @@ def finish_task_detail(request,id):
     before=task.completed
     task.completed= not before
     task.save()
+    return redirect(task.project)
+
+def delete_task(request,id):
+    task = get_object_or_404(ProjectComponent,id=id)
+    task.delete()
     return redirect(task.project)
