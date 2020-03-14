@@ -1,8 +1,9 @@
 {% extends 'assemble/base.html' %}
 
 {% block content %}
+<h1 class="text-center"> Users </h1>
 {% if filtered_user %}
-    <p>{{filtered_user}}</p>
+    <a class="text-center" href="{% url 'profile-view' filtered_user.slug %}"><h3>{{ filtered_user }}</h3></a>
 {% elif filtered_user == 0 %}
     <p> Could not find the user {{username}} </p>
 {% else %}

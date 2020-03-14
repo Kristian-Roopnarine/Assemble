@@ -132,17 +132,26 @@ def delete_task(request,id):
 def profile(request):
     current_projects = Project.objects.filter(user=request.user)
     profile = Profile.objects.get(user__username=request.user)
+    friend_requests = FriendRequest.objects.filter(to_user__username=request.user.username)
     context={
         'current_projects':current_projects,
-        'profile':profile
+        'profile':profile,
+        'friend_requests':friend_requests
     }
     return render(request,'assemble/profile.html',context)
+
+def profile_view(request,slug):
+    p = Profile.objects.filter(slug=slug).first()
+    u = p.user
+    context={
+        'u':u
+    }
+    return render(request,'assemble/profile_view.html',context)
+
 
 def search_user(request):
     try:
         filtered_user = Profile.objects.get(user__username=request.POST['username'])
-        print(filtered_user)
-        print(request.user)
         if request.user.username == filtered_user.user.username:
             return redirect('profile')
     except ObjectDoesNotExist:
@@ -152,3 +161,19 @@ def search_user(request):
         'username':request.POST['username']
     }
     return render(request,'assemble/search_user.html',context)
+    
+@login_required
+def send_friend_request(request,sent_to):
+    user = get_object_or_404(Profile,user__username=sent_to)
+    frequest = FriendRequest.objects.get_or_create(
+        to_user=user.user,
+        from_user=request.user,
+    )
+    return redirect('profile-view',slug=user.slug)
+
+
+    # create a friend request object
+    # link the to_user and from_user
+    # to_user = visiting profile
+    # from_user = request.user
+    

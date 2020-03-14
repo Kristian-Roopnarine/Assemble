@@ -12,7 +12,9 @@ from .views import (
     finish_task_detail,
     delete_task,
     profile,
-    search_user
+    search_user,
+    send_friend_request,
+    profile_view
     
     )
 
@@ -40,7 +42,10 @@ urlpatterns = [
     path('finish-task/<id>/',finish_task_detail,name="finish-task"),
     path('delete-task/<id>/',delete_task,name="delete-task"),
     path('profile/',profile,name='profile'),
-    path('search/',search_user,name="search-user")
+    path('search/',search_user,name="search-user"),
+
+    path('search/send-friend-request/<sent_to>/',send_friend_request,name="send-friend-request"),
+    path('search/profile/<slug>/',profile_view,name="profile-view")
     
     
 ]
