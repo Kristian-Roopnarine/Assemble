@@ -10,6 +10,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from .forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login,logout
+from django.db.models import Q
 # Create your views here.
 
 # home
@@ -132,11 +133,13 @@ def delete_task(request,id):
 def profile(request):
     current_projects = Project.objects.filter(user=request.user)
     profile = Profile.objects.get(user__username=request.user)
-    friend_requests = FriendRequest.objects.filter(to_user__username=request.user.username)
+    friend_requests = FriendRequest.objects.filter(Q(to_user__username=request.user.username) | Q(from_user__username=request.user.username))
+    print(friend_requests)
     context={
         'current_projects':current_projects,
         'profile':profile,
-        'friend_requests':friend_requests
+        'friend_requests':friend_requests,
+        
     }
     return render(request,'assemble/profile.html',context)
 
@@ -161,7 +164,7 @@ def search_user(request):
         'username':request.POST['username']
     }
     return render(request,'assemble/search_user.html',context)
-    
+
 @login_required
 def send_friend_request(request,sent_to):
     user = get_object_or_404(Profile,user__username=sent_to)

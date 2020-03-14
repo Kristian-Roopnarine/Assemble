@@ -42,10 +42,19 @@
             </div>
             <ul class="list-group">
             {% if friend_requests.count != 0 %}
-                {% for friend in profile.friends.all %}
-                    <li class="list-group-item d-flex justify-content-between align-items-center border rounded-0 list-group-item">Friend 1</li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center border rounded-0 list-group-item">Friend 2</li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center border rounded-0 list-group-item">Friend 3</li>
+                {% for requests in friend_requests %}
+                    {% if requests.to_user.username == user.username %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center border rounded-0 list-group-item">
+                            {{ requests.from_user }} wants to be your friend!
+                            <a class="btn btn-success btn-sm" href="#">Accept</a>
+                        </li>
+                        
+                    {% else %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center border rounded-0 list-group-item">
+                            Request to {{requests.to_user}} pending.
+                            <a class="btn btn-danger btn-sm" href="#">Remove</a>
+                        </li>
+                    {% endif %}
                 {% endfor %}
             {% else %}
                     <li class="list-group-item d-flex justify-content-between align-items-center border rounded-0 list-group-item">No pending requests.</li>
