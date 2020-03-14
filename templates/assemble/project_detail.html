@@ -51,15 +51,22 @@
                                     </li>
                                 {% endif %}
                             {% endfor %}
-                            <a class="btn btn-info btn-sm text-white mb-2" href="{% url 'create-task' component.slug %}"><i class="fa fa-plus"></i> Create Tasks</a>
+                            
+                            {#<a class="btn btn-info btn-sm text-white mb-2" href="{% url 'create-task' component.slug %}"><i class="fa fa-plus"></i> Create Tasks</a>#}
+
+                            {# this renders one modal form for each component#}
+                            {# might not be the most efficient way to do this #}
+                            <button class="btn btn-info btn-sm text-white mb-2" data-toggle="modal" data-target="#component-{{component.slug}}">
+                                <i class="fa fa-plus"></i> Create task
+                            </button>                            
                         </ul>                     
                     </div>
                 </div>
             </div>
-                
+            {% include 'assemble/modal_task_form.html' %}
         {% endfor %}
     </div>
-
+    
 
 
 {% endblock content %}

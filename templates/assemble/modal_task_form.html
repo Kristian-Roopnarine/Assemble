@@ -1,4 +1,6 @@
-{% load crispy_forms_tags %}  
+{% load crispy_forms_tags %}
+
+
         <div class="modal fade" tabindex="-1" role="dialog" id="component-{{component.slug}}">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -8,17 +10,21 @@
                     <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
-                    <p>{{ component.name }}</p>
-                    <form method="post" action="{% url 'create-task' component.slug %}">
+                <div class="modal-body text-left">
+                    <h3>Project Name: {{ component.project.name }}</h3>
+                    <h4>Component name: {{ component.name }}</h4>
+                    <form class="form-group" method="post" action="{% url 'create-task' component.slug %}">
                         {% csrf_token %}
-                        {{ form|crispy }}
+                        <label for="Name">Task Name:</label>
+                        <input id="Name" name="name" class="form-control" type="text" placeholder="Name of Task">
+                        <small class="form-text text-muted">What task does this component need?</small> 
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary" type="submit">Submit</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" type="submit">Submit</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                </div>
+                
                 </div>
             </div>
         </div>
