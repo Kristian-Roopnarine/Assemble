@@ -7,8 +7,8 @@ from django.db.models.signals import post_save
 class Project(models.Model):
     name = models.CharField(max_length=60)
     description = models.TextField(max_length=400)
-    user = models.ManyToManyField(User)
-
+    user = models.ManyToManyField('Profile',blank=True)
+    owner = models.ForeignKey('Profile',blank=True,on_delete=models.CASCADE,related_name="creator")
     # these many parameters because of how the m2m is saved
     # the model needs to be saved first THEN we can define relationships
     # because of that, the model is saved with a slug field that is empty at first
@@ -36,6 +36,7 @@ class Project(models.Model):
     
     def get_absolute_url(self):
         return reverse('project-detail',kwargs={'project_slug':self.slug})
+
 
 class ProjectComponent(models.Model):
     name = models.CharField(max_length=200)
@@ -94,7 +95,7 @@ def post_save_user_model_receiver(sender,instance,created,*args,**kwargs):
             Profile.objects.create(user=instance)
         except:
             pass
-        
+
 #creates a profile for every user on sign up
 post_save.connect(post_save_user_model_receiver,sender=User)
 

@@ -75,3 +75,15 @@ class UserCreationForm(forms.ModelForm):
         if commit:
             user.save()
         return user
+
+
+class ProjectCreateForm(forms.ModelForm):
+    class Meta:
+        model = Project
+        fields = ['name','description','user']
+    
+    def __init__(self,*args,**kwargs):
+        user = kwargs.pop('user')
+        super(ProjectCreateForm,self).__init__(*args,**kwargs)
+        is_me = Profile.objects.get(user=user)
+        self.fields['user'].queryset = is_me.friends.all()

@@ -7,7 +7,7 @@ from .models import Project,ProjectComponent,FriendRequest,Profile
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 # django form for creating a user 
-from .forms import UserCreationForm
+from .forms import UserCreationForm,ProjectCreateForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login,logout
 from django.db.models import Q
@@ -37,17 +37,25 @@ class ProjectList(LoginRequiredMixin,ListView):
     model = Project
     
     def get_queryset(self):
-        return Project.objects.filter(user=self.request.user)
+        is_me = Profile.objects.get(user=self.request.user)
+        return Project.objects.filter(user=is_me)
 
 # view to create more projects
 class ProjectCreate(LoginRequiredMixin,CreateView):
-    model = Project
-    fields = ['name','description','user']
+    form_class = ProjectCreateForm
+    template_name = "assemble/project_form.html"
     success_url = reverse_lazy('project-list')
 
+    def get_form_kwargs(self):
+        kwargs = super(ProjectCreate,self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
     def form_valid(self,form):
+        is_me = Profile.objects.get(user=self.request.user)
+        form.instance.owner=is_me
         super().form_valid(form)
-        form.instance.user.add(self.request.user)
+        form.instance.user.add(is_me)
         # needs to return a HttpResponse Object
         # before it returned super().form_valid(form)
         # however when using a m2m relationship, the object needs to be saved FIRST, then relationships can be made.
@@ -96,7 +104,8 @@ class ProjectTaskCreate(LoginRequiredMixin,CreateView):
 @login_required
 # view components of a project
 def project_detail_view(request,project_slug):
-    project = Project.objects.filter(user=request.user).get(slug=project_slug)
+    is_me = Profile.objects.get(user=request.user)
+    project = Project.objects.filter(user=is_me).get(slug=project_slug)
     project_components = ProjectComponent.objects.filter(project__name=project).filter(task=None)
     context = {
         'project':project,
@@ -135,7 +144,8 @@ def delete_task(request,id):
 
 @login_required
 def profile(request):
-    current_projects = Project.objects.filter(user=request.user)
+    is_me = Profile.objects.get(user=request.user)
+    current_projects = Project.objects.filter(user=is_me)
     profile = Profile.objects.get(user__username=request.user)
     #queryset containing all friend request objects
     friend_requests = FriendRequest.objects.filter(Q(to_user__username=request.user.username) | Q(from_user__username=request.user.username))
