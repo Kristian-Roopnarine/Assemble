@@ -23,9 +23,15 @@
                 Friends list
             </div>
             <ul class="list-group">
-                <li class="list-group-item d-flex justify-content-between align-items-center border rounded-0 list-group-item">Friend 1</li>
-                <li class="list-group-item d-flex justify-content-between align-items-center border rounded-0 list-group-item">Friend 2</li>
-                <li class="list-group-item d-flex justify-content-between align-items-center border rounded-0 list-group-item">Friend 3</li>
+            {% if profile.friends.all.count != 0 %}
+                {% for friend in profile.friends.all %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center border rounded-0 list-group-item">Friend 1</li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center border rounded-0 list-group-item">Friend 2</li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center border rounded-0 list-group-item">Friend 3</li>
+                {% endfor %}
+            {% else %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center border rounded-0 list-group-item">Search for a friend in the top right!</li>
+            {% endif%}
             </ul>
         </div>
     </div>

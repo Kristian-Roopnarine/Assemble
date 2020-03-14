@@ -13,7 +13,7 @@
                     <form method="post" action="{% url 'sign-up' %}">
 
                         {% csrf_token %}
-                        {% crispy form %}
+                        {{ form|crispy }}
                         <button type="submit" class="btn btn-primary">Create new account</button>
                     </form>
                 </div>

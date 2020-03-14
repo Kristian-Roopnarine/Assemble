@@ -3,9 +3,9 @@ from django.views.generic import ListView
 from django.views.generic.edit import CreateView,UpdateView,DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
-from .models import Project,ProjectComponent
+from .models import Project,ProjectComponent,FriendRequest,Profile
 from django.contrib import messages
-
+from django.core.exceptions import ObjectDoesNotExist
 # django form for creating a user 
 from .forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
@@ -131,8 +131,24 @@ def delete_task(request,id):
 @login_required
 def profile(request):
     current_projects = Project.objects.filter(user=request.user)
+    profile = Profile.objects.get(user__username=request.user)
     context={
-        'current_projects':current_projects
+        'current_projects':current_projects,
+        'profile':profile
     }
     return render(request,'assemble/profile.html',context)
 
+def search_user(request):
+    try:
+        filtered_user = Profile.objects.get(user__username=request.POST['username'])
+        print(filtered_user)
+        print(request.user)
+        if request.user.username == filtered_user.user.username:
+            return redirect('profile')
+    except ObjectDoesNotExist:
+        filtered_user = 0
+    context={
+        'filtered_user':filtered_user,
+        'username':request.POST['username']
+    }
+    return render(request,'assemble/search_user.html',context)

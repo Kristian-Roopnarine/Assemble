@@ -4,7 +4,7 @@ from django.contrib.auth import (
 )
 from django.contrib.auth.forms import UsernameField
 from django.utils.translation import gettext, gettext_lazy as _
-from .models import Project,ProjectComponent
+from .models import Project,ProjectComponent,Profile
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout,Field

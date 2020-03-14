@@ -66,14 +66,13 @@ class ProjectComponent(models.Model):
         return reverse('project-component-detail',kwargs={'project_component_slug':self.slug})
 
 
-
 class Profile(models.Model):
     user = models.OneToOneField(User,on_delete=models.CASCADE)
-    slug = models.SlugField()
+    slug = models.SlugField(blank=True)
     friends = models.ManyToManyField('Profile',blank=True)
 
     def __str__(self):
-        return str(self.user.username)
+        return self.user.username
 
     def _get_unique_slug(self):
         slug = slugify(self.user.username)
@@ -92,10 +91,11 @@ class Profile(models.Model):
 def post_save_user_model_receiver(sender,instance,created,*args,**kwargs):
     if created:
         try:
-            Profile.objects.create(user=instace)
+            Profile.objects.create(user=instance)
         except:
             pass
-
+        
+#creates a profile for every user on sign up
 post_save.connect(post_save_user_model_receiver,sender=User)
 
 class FriendRequest(models.Model):
