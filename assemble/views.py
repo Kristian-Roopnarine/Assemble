@@ -8,7 +8,7 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 
 # django form for creating a user 
-from .forms import UserCreationForm,ProjectCreateForm,ProjectEditForm,ComponentEditForm
+from .forms import UserCreationForm,ProjectCreateForm,ProjectEditForm,ComponentEditForm,UserFeedbackCreateForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login,logout
 from django.db.models import Q
@@ -30,8 +30,21 @@ def sign_up(request):
             login(request,user)
             return redirect('home')
     context['form'] = form
-
     return render(request,'registration/sign_up.html',context)
+
+
+def log_out(request):
+    context = {}
+    form = UserFeedbackCreateForm()
+    context['form']= form
+    logout(request)
+    if request.method == 'POST':
+        form = UserFeedbackCreateForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request,'Thank you for your feedback!')
+            return redirect('home')
+    return render(request,'registration/logged_out.html',context)
 
 # List view of all the projects for a user
 class ProjectList(LoginRequiredMixin,ListView):

@@ -121,3 +121,12 @@ class FriendRequest(models.Model):
 
     def __str__(self):
         return f"From {self.from_user} to {self.to_user}. Sent {self.timestamp}"    
+
+
+class UserFeedback(models.Model):
+    title = models.CharField(max_length=100)
+    description = models.TextField(max_length=400)
+    date_recorded = models.DateTimeField()
+
+    def __str__(self):
+        return self.title

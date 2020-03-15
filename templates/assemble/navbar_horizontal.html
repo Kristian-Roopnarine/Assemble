@@ -1,4 +1,5 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-dark">
+
+<nav class="navbar sticky-top navbar-expand-lg navbar-light bg-dark">
     <a class="navbar-brand text-white" href="{% url 'home' %}">
         Assemble
     </a>
@@ -28,7 +29,7 @@
                 </a>
             </li>
         </ul>
-        <a class="nav-link text-white navbar-text" href="{% url 'logout' %}">Log out</a>
+        <a class="nav-link text-white navbar-text" href="{% url 'logged_out' %}">Log out</a>
         <form class="form-inline" method="post" action="{% url 'search-user' %}">
             {% csrf_token %}
             <input class="form-control mr-sm-2" name="username" type="search" placeholder="Search Users" aria-label="Search">

@@ -11,11 +11,11 @@
     <div class="row justify-content-center">
         {% for project in project_list %}
             <div class="col-sm-3 col-md-3">
-                <a class="text-white" style="text-decoration:none;" href="{% url 'project-detail' project.slug %}">
+
                     <div class="card text-white bg-secondary mb-3" style="max-width: 18rem;">
                         <div class="card-header">
                             <h3>
-                                {{ project.name }}
+                                <a class="text-white" style="text-decoration:none;" href="{% url 'project-detail' project.slug %}">{{ project.name }}</a>
                                 <a href="{% url 'edit-project' project.id %}"><span style="color:white;font-size:1rem;"><i class="fa fa-edit"></i></span></a>
 
                                 <a href="{% url 'delete-project' project.id %}"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a>
@@ -25,7 +25,7 @@
                             <p class="card-text">{{project.description}}</p>
                         </div>
                     </div>
-                </a>
+
             </div>            
         {% endfor %}
     </div>

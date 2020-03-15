@@ -6,7 +6,7 @@ from django.shortcuts import redirect
 from django.contrib import messages
 from django.contrib.auth.forms import UsernameField
 from django.utils.translation import gettext, gettext_lazy as _
-from .models import Project,ProjectComponent,Profile
+from .models import Project,ProjectComponent,Profile,UserFeedback
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout,Field
@@ -96,6 +96,7 @@ class ProjectCreateForm(forms.ModelForm):
         self.fields['user'].queryset = is_me.friends.all()
         self.fields['user'].widget = forms.widgets.CheckboxSelectMultiple()
         self.fields['user'].help_text = "Add friends to this project."
+        
 class ProjectEditForm(forms.ModelForm):
     class Meta:
         model = Project
@@ -127,3 +128,11 @@ class ComponentEditForm(forms.ModelForm):
         model = ProjectComponent
         fields = ['name']
 
+class UserFeedbackCreateForm(forms.ModelForm):
+    date_recorded = forms.DateTimeField(widget=forms.SelectDateWidget)
+    class Meta:
+        model = UserFeedback
+        fields = '__all__'
+
+
+        

@@ -1,5 +1,24 @@
-{% extends "assemble/base.html "%}
-
+{% extends "registration/base.html "%}
+{% load crispy_forms_tags %}
 {% block content %}
-    <h1>Thank you for logging out.</h1>
+
+<div class="row justify-content-center mt-3">
+    <div class="col-sm-4">
+        <h1 class="text-center">Thank you for using Assemble.</h1>
+        <h4 class="text-center"> Can you help improve this app by filling out the user feedback form below? <br>Did you encounter any bugs? <br>Any updates you think would improve the UI/UX? </h4> 
+    </div>
+
+    <div class="col-sm-6">
+        <div class="card">
+            <div class="card-body">
+                <form class="form-group" method='post' action="{% url 'logged_out' %}">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <input type="submit" class="btn btn-primary btn-sm" placeholder="Submit">
+                    <a href="{% url 'home' %}" class="btn btn-secondary btn-sm">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock content%}

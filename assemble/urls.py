@@ -20,7 +20,8 @@ from .views import (
     delete_project,
     #edit_project,
     edit_component_or_task,
-    ProjectEditView
+    ProjectEditView,
+    log_out
     
     )
 
@@ -29,6 +30,7 @@ from .views import (
 urlpatterns = [
     path('',index,name='home'),
     path('accounts/sign-up',sign_up,name='sign-up'),
+    path('logout',log_out,name='logged_out'),
     path('project-list/',ProjectList.as_view(),name="project-list"),
     path('project-create/',ProjectCreate.as_view(),name="project-create"),
 
