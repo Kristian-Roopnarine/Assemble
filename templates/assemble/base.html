@@ -12,23 +12,11 @@
 </head>
 <body>
     {% include 'assemble/navbar_horizontal.html' %}
+
+    {% include 'assemble/messages.html' %}
     <div class="container-fluid" >
         <div class="row" >
-            
-
-            {% comment %}
-            <div class="col-1">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        {% block breadcrumb %}
-
-                        {% endblock breadcrumb %}
-                    </ol>
-                </nav>
-            </div>  
-            {% endcomment %}
         
-
 
             <div class="col">
                 {% block content %}

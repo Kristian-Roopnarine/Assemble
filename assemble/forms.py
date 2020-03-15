@@ -2,6 +2,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth import (
     password_validation
 )
+from django.shortcuts import redirect
+from django.contrib import messages
 from django.contrib.auth.forms import UsernameField
 from django.utils.translation import gettext, gettext_lazy as _
 from .models import Project,ProjectComponent,Profile
@@ -81,9 +83,47 @@ class ProjectCreateForm(forms.ModelForm):
     class Meta:
         model = Project
         fields = ['name','description','user']
-    
+
+    # when creating this class
     def __init__(self,*args,**kwargs):
+        # remove the user from key word arguments
         user = kwargs.pop('user')
+        # call the init function to get the key word arguments
         super(ProjectCreateForm,self).__init__(*args,**kwargs)
+        # get the profile of the user
         is_me = Profile.objects.get(user=user)
+        # create a user field with the options of users friends only
         self.fields['user'].queryset = is_me.friends.all()
+        self.fields['user'].widget = forms.widgets.CheckboxSelectMultiple()
+        self.fields['user'].help_text = "Add friends to this project."
+class ProjectEditForm(forms.ModelForm):
+    class Meta:
+        model = Project
+        fields = ['name','description','user']
+
+
+    def __init__(self,user,*args,**kwargs):
+        # call the init function to get the key word arguments
+        super(ProjectEditForm,self).__init__(*args,**kwargs)
+        # get the profile of the user
+        is_me = Profile.objects.get(user=user)
+        # create a user field with the options of users friends only
+        if kwargs['instance'] in is_me.creator.all():
+            self.fields['user'].queryset = is_me.friends.all()
+            self.fields['user'].widget = forms.widgets.CheckboxSelectMultiple()
+            self.fields['user'].help_text = "Choose the friends you want to add."
+        else:
+            self.fields['user'].disabled = True
+            self.fields['user'].help_text = "Only the owner can add or remove users to this project."
+    """
+    def get_form_kwargs(self):
+        kwargs = super(ProjectEditForm,self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+    """
+
+class ComponentEditForm(forms.ModelForm):
+    class Meta:
+        model = ProjectComponent
+        fields = ['name']
+

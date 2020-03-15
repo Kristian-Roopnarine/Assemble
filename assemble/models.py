@@ -4,6 +4,21 @@ from django.utils.text import slugify
 from django.urls import reverse
 from django.db.models.signals import post_save
 
+"""
+Project
+    owner - person who created the project ( one owner, but owner may be linked to other projects)
+    users - people working on the project (many users may be working on this project)
+    description
+    name
+    slug
+    completed
+
+Profile
+    user - only one user per profile
+    friends - profile is linked or has relationships with other profiles.
+
+"""
+
 class Project(models.Model):
     name = models.CharField(max_length=60)
     description = models.TextField(max_length=400)

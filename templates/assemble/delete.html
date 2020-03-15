@@ -1,0 +1,10 @@
+{% extends 'assemble/base.html' %}
+
+{% block content %}
+<form method="POST" action = "{% url 'delete-project' project.id %}">
+    {% csrf_token %}
+    <p>Are you sure you want to delete {{ project }}? </p>
+    <input placeholder = "Confirm" type="submit" class="btn btn-sm btn-danger">
+    <a class="btn btn-warning btn-sm" href="{% url 'project-list' %}">Cancel</a>
+</form>
+{% endblock content %}

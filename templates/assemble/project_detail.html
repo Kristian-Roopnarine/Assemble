@@ -1,22 +1,9 @@
 {% extends 'assemble/base.html' %}
 {% load crispy_forms_tags %}
 
-{% block breadcrumb %}
-    <li class="breadcrumb-item">
-        <a href="{% url 'project-list' %}">
-            List of Projects
-        </a>
-    </li>
-    <li class="breadcrumb-item">
-        <a href="{% url 'project-detail' project.slug %}"> {{ project.name }} </a>
-    </li>
-
-{% endblock breadcrumb %}
-
 
 {% block content %}
 <div class="text-center my-3">
-    {% include 'assemble/messages.html' %}
     <h1>{{ project.name }}</h1>
 </div>
     <div class="row text-center flex-nowrap" style="overflow-x:auto;min-height:100vh">
@@ -27,7 +14,8 @@
             <div class="col-md-3 mb-2">
                 <div class="card text-white">    
                     <div class="card-header bg-secondary mb-2">
-                        {{ component.name }}  <a href="{% url 'delete-task' component.id%}"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a>
+                        {{ component.name }}  <a href="{% url 'edit-details' component.id %}"><span style="color:white;font-size:1rem;"><i class="fa fa-edit"></i></span></a>
+                        <a href="{% url 'delete-task' component.id %}"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a>
                     </div>
                     <div class="list-group">
                         <ul class="list-group px-3">
@@ -37,6 +25,7 @@
                                         {{task.name}}
                                         <span class="badge">
                                             <a href="{% url 'finish-task' task.id%}"><span style="color:green;font-size:1rem;"><i class="fa fa-check"></i></span></a>
+                                            <a href="{% url 'edit-details' task.id %}"><span style="color:white;font-size:1rem;"><i class="fa fa-edit"></i></span></a>
                                             <a href="{% url 'delete-task' task.id%}"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a>
                                         </span>
                                     </li>
@@ -46,6 +35,7 @@
                                         {{task.name}}
                                         <span class="badge">
                                             <a href="{% url 'finish-task' task.id%}"><span style="color:green;font-size:1rem;"><i class="fa fa-check"></i></span></a>
+                                            <a href="{% url 'edit-details' task.id %}"><span style="color:white;font-size:1rem;"><i class="fa fa-edit"></i></span></a>
                                             <a href="{% url 'delete-task' task.id%}"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a>
                                         </span>
                                     </li>

@@ -2,7 +2,7 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-{% include 'assemble/messages.html'%}
+
 <div class="container mt-3">
     <a href="{% url 'project-detail' component.project.slug %}">Return to the project {{component.project.name}}</a>
     <div class="row justify-content-center">
