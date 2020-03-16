@@ -4,7 +4,7 @@ from django.views.generic.edit import CreateView,UpdateView,DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from .models import Project,ProjectComponent,FriendRequest,Profile,\
-    get_list_of_project_component_history_records,join_queryset_of_historical_records,get_historical_differences
+    get_list_of_project_component_history_records,join_queryset_of_historical_records,create_strings_from_queryset
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -263,12 +263,12 @@ class ProjectEditView(LoginRequiredMixin,UpdateView):
 def history_view(request,pk):
     project = Project.objects.get(id=pk)
     history_records = get_list_of_project_component_history_records(project)
-    history_diff = get_historical_differences(history_records)
     sorted_history_queryset = join_queryset_of_historical_records(history_records)
+    render_list = create_strings_from_queryset(sorted_history_queryset)
     context={
         'project':project,
         'sorted_history_queryset':sorted_history_queryset,
-        'history_diff':history_diff
+        'render_list':render_list
     }
     return render(request,'assemble/history.html',context)
 

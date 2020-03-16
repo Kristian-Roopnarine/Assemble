@@ -145,7 +145,7 @@ def get_list_of_project_component_history_records(project):
     :return: A list of historical record queryset for each component
     """
     return [test.history.all() for test in project.projectcomponent_set.all()]
-
+"""
 def get_historical_differences(history_records):
     reverse_sorted = []
     for records in history_records:
@@ -161,30 +161,33 @@ def get_historical_differences(history_records):
                     diff = small.diff_against(small.prev_record)
                     for change in diff.changes:
                         if change.field == 'name':
-                            reverse_sorted.append(f"{small.history_user} changed the task name from '{change.old}' "
-                                  f"to '{change.new}' on {small.history_date.strftime('%b/%w/%Y')}")
+                            reverse_sorted.append([f"{small.history_user} changed the task name "
+                                                   f"from '{change.old}' "
+                                  f"to '{change.new}' on ",
+                                                  small.history_date.strftime('%b/%d/%Y %H:%M')])
 
                         else:
-                            reverse_sorted.append(f"{small.history_user} changed the task's "
+                            reverse_sorted.append([f"{small.history_user} changed the task's "
                                   f"'{small.history_object}' completed status "
                                   f"from "
-                                  f"{change.old} to {change.new} on {small.history_date.strftime('%b/%w/%Y')}")
+                                  f"{change.old} to {change.new} on ",
+                                                   small.history_date.strftime('%b/%d/%Y %H:%M')])
                 except TypeError:
                     pass
         else:
             for record in records:
                 if record.task == None:
-                    reverse_sorted.append(f"{record.history_user} added the component '{record.name}' to "
-                          f"{record.project} on {record.history_date.strftime('%b/%w/%Y')}")
+                    reverse_sorted.append([f"{record.history_user} added the component "
+                                           f"'{record.name}' to "
+                          f"{record.project} on ",record.history_date.strftime('%b/%d/%Y %H:%M')])
                 else:
-                    reverse_sorted.append(f"{record.history_user} added the task '{record.name}' to the component "
-                          f"'{record.task}' on {record.history_date.strftime('%b/%w/%Y')}")
+                    reverse_sorted.append([f"{record.history_user} added the task "
+                                            f"'{record.name}' to the component "
+                          f"'{record.task}' on ",record.history_date.strftime('%b/%d/%Y %H:%M')])
 
     reverse_sorted.reverse()
     return reverse_sorted
-
-
-
+"""
 
 def join_queryset_of_historical_records(history_records):
     """
@@ -195,3 +198,42 @@ def join_queryset_of_historical_records(history_records):
     for record in history_records:
         first |= record
     return first.order_by('-history_date')
+
+def create_strings_from_queryset(ordered_queryset):
+    """
+    :param ordered_queryset: Takes in an ordered Historical queryset
+    :return: A list of lists containing two items, string to be displayed and date.
+    """
+    render_list = []
+    for record in ordered_queryset:
+        if record.prev_record:
+            # if this item has been edited
+            diff = record.diff_against(record.prev_record)
+            user = record.history_user
+            changes = diff.changes[0]
+            field = changes.field
+            old = changes.old
+            new = changes.new
+            date = record.history_date.strftime('%b/%d/%Y %H:%M')
+            if field == "name" or field == "description":
+                render_list.append([f"{user} changed the {field} from '{old}' to '{new}'",date])
+            else:
+                #field changed was completed
+                render_list.append([f"{user} changed the completed status of "
+                                    f"'{record.history_object}' from {old} to "
+                                    f"{new}",
+                                    date])
+        else:
+            user = record.history_user
+            date = record.history_date.strftime('%b/%d/%Y %H:%M')
+            component = record.name
+            project = record.project
+            if record.task == None:
+                render_list.append([f"{user} added the component '{component}' to '{project}'",
+                                    date])
+            else:
+                project_component = record.task
+                render_list.append([f"{user} added the task '{component}' to '{project_component}'",
+                                    date])
+    print(render_list)
+    return render_list
