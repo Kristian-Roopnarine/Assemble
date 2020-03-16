@@ -190,7 +190,7 @@ def project_detail_view(request,project_slug):
     return render(request,'assemble/project_detail.html',context)
 
 @login_required
-def delete_project(request,id):
+def delete_project(request,pk):
     """
     View responsible for deleting a project from the project-list template.
     
@@ -201,7 +201,7 @@ def delete_project(request,id):
     Returns:
         [http response] -- [response that redirects to the project-list]
     """
-    project = Project.objects.get(id=id)
+    project = Project.objects.get(id=pk)
     context = {
         'project':project
     }

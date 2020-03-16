@@ -16,9 +16,10 @@
                         <div class="card-header">
                             <h3>
                                 <a class="text-white" style="text-decoration:none;" href="{% url 'project-detail' project.slug %}">{{ project.name }}</a>
-                                <a href="{% url 'edit-project' project.id %}"><span style="color:white;font-size:1rem;"><i class="fa fa-edit"></i></span></a>
-
-                                <a href="{% url 'delete-project' project.id %}"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a>
+                                {% if project.owner.user == request.user %}
+                                    <a href="{% url 'edit-project' project.id %}"><span style="color:white;font-size:1rem;"><i class="fa fa-edit"></i></span></a>
+                                    <a href="{% url 'delete-project' project.id %}"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a>
+                                {% endif %}
                             </h3>
                         </div>
                         <div class="card-body">

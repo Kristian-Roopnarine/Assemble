@@ -71,11 +71,6 @@ urlpatterns = [
     path('search/send-friend-request/<sent_to>/',send_friend_request,name="send-friend-request"),
     path('profile/accept-friend-request/<from_user>/',accept_friend_request,name='accept-friend-request'),
     path('profile/delete-friend-request/<pk>/',delete_friend_request,name="delete-friend-request"),
-
-    
-
-    
-    
-       
+      
 ]
 

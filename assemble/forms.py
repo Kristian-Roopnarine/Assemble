@@ -80,6 +80,12 @@ class UserCreationForm(forms.ModelForm):
 
 
 class ProjectCreateForm(forms.ModelForm):
+    """
+    A form that creates a project from the Project Model.
+    
+    Arguments:
+        forms {[type]} -- [description]
+    """
     class Meta:
         model = Project
         fields = ['name','description','user']
@@ -98,6 +104,15 @@ class ProjectCreateForm(forms.ModelForm):
         self.fields['user'].help_text = "Add friends to this project."
         
 class ProjectEditForm(forms.ModelForm):
+    """
+    A form that allows a user to edit a project they have a relationship with.
+    
+    Arguments:
+        forms {[type]} -- [description]
+    
+    Returns:
+        [type] -- [description]
+    """
     class Meta:
         model = Project
         fields = ['name','description','user']
@@ -109,13 +124,10 @@ class ProjectEditForm(forms.ModelForm):
         # get the profile of the user
         is_me = Profile.objects.get(user=user)
         # create a user field with the options of users friends only
-        if kwargs['instance'] in is_me.creator.all():
-            self.fields['user'].queryset = is_me.friends.all()
-            self.fields['user'].widget = forms.widgets.CheckboxSelectMultiple()
-            self.fields['user'].help_text = "Choose the friends you want to add."
-        else:
-            self.fields['user'].disabled = True
-            self.fields['user'].help_text = "Only the owner can add or remove users to this project."
+        self.fields['user'].queryset = is_me.friends.all()
+        self.fields['user'].widget = forms.widgets.CheckboxSelectMultiple()
+        self.fields['user'].help_text = "Choose the friends you want to add."
+      
     """
     def get_form_kwargs(self):
         kwargs = super(ProjectEditForm,self).get_form_kwargs()
@@ -124,11 +136,23 @@ class ProjectEditForm(forms.ModelForm):
     """
 
 class ComponentEditForm(forms.ModelForm):
+    """
+    Allows a user to edit components/tasks of a project.
+    
+    Arguments:
+        forms {[type]} -- [description]
+    """
     class Meta:
         model = ProjectComponent
         fields = ['name']
 
 class UserFeedbackCreateForm(forms.ModelForm):
+    """
+    Allows user to provide feedback on Assemble after signing out.
+    
+    Arguments:
+        forms {[type]} -- [description]
+    """
     date_recorded = forms.DateTimeField(widget=forms.SelectDateWidget)
     class Meta:
         model = UserFeedback
