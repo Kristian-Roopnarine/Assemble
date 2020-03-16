@@ -3,12 +3,14 @@ from django.views.generic import ListView
 from django.views.generic.edit import CreateView,UpdateView,DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
-from .models import Project,ProjectComponent,FriendRequest,Profile
+from .models import Project,ProjectComponent,FriendRequest,Profile,\
+    get_list_of_project_component_history_records,join_queryset_of_historical_records
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 
 # django form for creating a user 
-from .forms import UserCreationForm,ProjectCreateForm,ProjectEditForm,ComponentEditForm,UserFeedbackCreateForm
+from .forms import UserCreationForm,ProjectCreateForm,ProjectEditForm,ComponentEditForm,\
+    UserFeedbackCreateForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login,logout
 from django.db.models import Q
@@ -258,8 +260,16 @@ class ProjectEditView(LoginRequiredMixin,UpdateView):
         messages.success(self.request, f"Edited {form.instance.name}")
         return redirect('project-list')
 
-
-
+def history_view(request,pk):
+    project = Project.objects.get(id=pk)
+    history_records = get_list_of_project_component_history_records(project)
+    sorted_history_queryset = join_queryset_of_historical_records(history_records)
+    print(sorted_history_queryset)
+    context={
+        'project':project,
+        'sorted_history_queryset':sorted_history_queryset
+    }
+    return render(request,'assemble/history.html',context)
 
 ############################################
 ### PROJECT COMPONENT/TASK VIEWS

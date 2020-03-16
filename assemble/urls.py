@@ -21,7 +21,8 @@ from .views import (
     #edit_project,
     edit_component_or_task,
     ProjectEditView,
-    log_out
+    log_out,
+    history_view
     
     )
 
@@ -45,6 +46,7 @@ urlpatterns = [
     path('project-list/project-detail/<project_slug>/',project_detail_view,name="project-detail"),
     path('project-list/delete-project/<pk>/',delete_project,name='delete-project'),
     path('project-list/edit-project/<pk>/',ProjectEditView.as_view(),name='edit-project'),
+    path('project-list/project-detail/history/<pk>/',history_view,name='project-history'),
 
     # displays the current project component and all project component tasks
     #path('project-component-detail/<project_component_slug>/',project_component_detail_view,name="project-component-detail"),

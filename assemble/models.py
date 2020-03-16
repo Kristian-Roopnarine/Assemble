@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.utils.text import slugify
 from django.urls import reverse
 from django.db.models.signals import post_save
+from simple_history.models import HistoricalRecords
 
 """
 Project
@@ -30,6 +31,7 @@ class Project(models.Model):
 
     slug = models.SlugField(max_length=100,unique=True,blank=True,null=True)
     completed= models.BooleanField(default=False)
+    history = HistoricalRecords()
 
 
     def __str__(self):
@@ -52,6 +54,8 @@ class Project(models.Model):
     def get_absolute_url(self):
         return reverse('project-detail',kwargs={'project_slug':self.slug})
 
+# can return all project components from a project using
+# test_project.projectcomponent_set.all() --> From parent to child with foreign key relationship
 
 class ProjectComponent(models.Model):
     name = models.CharField(max_length=200)
@@ -60,6 +64,8 @@ class ProjectComponent(models.Model):
     completed = models.BooleanField(default=False)
     task = models.ForeignKey('self',null=True,default=None,related_name="component",on_delete=models.CASCADE)
     project = models.ForeignKey(Project,on_delete=models.CASCADE)
+    history = HistoricalRecords()
+
 
     def __str__(self):
         return self.name
@@ -86,6 +92,8 @@ class Profile(models.Model):
     user = models.OneToOneField(User,on_delete=models.CASCADE)
     slug = models.SlugField(blank=True)
     friends = models.ManyToManyField('Profile',blank=True)
+    history = HistoricalRecords()
+
 
     def __str__(self):
         return self.user.username
@@ -130,3 +138,20 @@ class UserFeedback(models.Model):
 
     def __str__(self):
         return self.title
+
+def get_list_of_project_component_history_records(project):
+    """
+    :param project:  A project model object that has been queried.
+    :return: A list of historical record queryset for each component
+    """
+    return [test.history.all() for test in project.projectcomponent_set.all()]
+
+def join_queryset_of_historical_records(history_records):
+    """
+    :param history_records: List of historical record queryset for each component
+    :return: An ordered union of querysets
+    """
+    first = history_records.pop(0)
+    for record in history_records:
+        first |= record
+    return first.order_by('-history_date')

@@ -1,0 +1,12 @@
+{% extends 'assemble/base.html' %}
+
+{% block content %}
+<h1>You're visiting the history of {{project.name}}</h1>
+<ul>
+
+    {% for record in sorted_history_queryset %}
+        <li>{{record}}</li>
+    {% endfor %}
+
+</ul>
+{% endblock content %}
