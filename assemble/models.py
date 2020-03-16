@@ -79,7 +79,7 @@ class ProjectComponent(models.Model):
         super().save(*args,**kwargs)
     
     def get_absolute_url(self):
-        return reverse('project-component-detail',kwargs={'project_component_slug':self.slug})
+        return reverse('project-detail',kwargs={'project_slug':self.project.slug})
 
 
 class Profile(models.Model):

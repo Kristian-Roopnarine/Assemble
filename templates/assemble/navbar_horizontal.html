@@ -6,7 +6,7 @@
 
     <ul class="navbar-nav mr-auto">
         <li class="nav-item active">
-            <a class="nav-link disabled text-white"> Welcome {{ user.username }} </a>
+            <a class="nav-link disabled text-white">{{ user.username }} </a>
         </li>
 
         {% if not user.is_authenticated %}
