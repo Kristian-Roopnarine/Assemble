@@ -2,11 +2,10 @@
 
 {% block content %}
 <h1>You're visiting the history of {{project.name}}</h1>
+<a href="{% url 'project-detail' project.slug %}" class="btn btn-sm btn-warning">Back to {{project.name}}</a>
 <ul>
-
-    {% for record in sorted_history_queryset %}
+    {% for record in history_diff %}
         <li>{{record}}</li>
     {% endfor %}
-
 </ul>
 {% endblock content %}

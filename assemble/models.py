@@ -58,10 +58,10 @@ class Project(models.Model):
 # test_project.projectcomponent_set.all() --> From parent to child with foreign key relationship
 
 class ProjectComponent(models.Model):
-    name = models.CharField(max_length=200)
-    description = models.CharField(max_length=200,blank=True)
+    name = models.CharField(max_length=200) # can change this
+    description = models.CharField(max_length=200,blank=True) # can change this
     slug = models.SlugField(max_length=100,unique=True,blank=True,null=True)
-    completed = models.BooleanField(default=False)
+    completed = models.BooleanField(default=False) # can change this
     task = models.ForeignKey('self',null=True,default=None,related_name="component",on_delete=models.CASCADE)
     project = models.ForeignKey(Project,on_delete=models.CASCADE)
     history = HistoricalRecords()
@@ -145,6 +145,46 @@ def get_list_of_project_component_history_records(project):
     :return: A list of historical record queryset for each component
     """
     return [test.history.all() for test in project.projectcomponent_set.all()]
+
+def get_historical_differences(history_records):
+    reverse_sorted = []
+    for records in history_records:
+        # has more that one record history
+        if records.count()>1:
+            for small in records:
+                # need this value print(f"\t\t{small.history_user}")
+                # maybe need this value print(f"\t\t{small.history_type}")
+                # need this value print(f"\t\t{small.prev_record.history_object}")
+                # need this value print(f"\t\t{small.history_object}") --> returns the project
+                # component
+                try:
+                    diff = small.diff_against(small.prev_record)
+                    for change in diff.changes:
+                        if change.field == 'name':
+                            reverse_sorted.append(f"{small.history_user} changed the task name from '{change.old}' "
+                                  f"to '{change.new}' on {small.history_date.strftime('%b/%w/%Y')}")
+
+                        else:
+                            reverse_sorted.append(f"{small.history_user} changed the task's "
+                                  f"'{small.history_object}' completed status "
+                                  f"from "
+                                  f"{change.old} to {change.new} on {small.history_date.strftime('%b/%w/%Y')}")
+                except TypeError:
+                    pass
+        else:
+            for record in records:
+                if record.task == None:
+                    reverse_sorted.append(f"{record.history_user} added the component '{record.name}' to "
+                          f"{record.project} on {record.history_date.strftime('%b/%w/%Y')}")
+                else:
+                    reverse_sorted.append(f"{record.history_user} added the task '{record.name}' to the component "
+                          f"'{record.task}' on {record.history_date.strftime('%b/%w/%Y')}")
+
+    reverse_sorted.reverse()
+    return reverse_sorted
+
+
+
 
 def join_queryset_of_historical_records(history_records):
     """
