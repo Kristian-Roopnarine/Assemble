@@ -267,7 +267,6 @@ def history_view(request,pk):
     render_list = create_strings_from_queryset(sorted_history_queryset)
     context={
         'project':project,
-        'sorted_history_queryset':sorted_history_queryset,
         'render_list':render_list
     }
     return render(request,'assemble/history.html',context)

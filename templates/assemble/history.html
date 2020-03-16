@@ -7,17 +7,23 @@
     <div class="col-sm-6">
         <ul class="list-group">
             <li class="list-group-item list-group-item-info">Project History</li>
-            {% for record in render_list %}
-                <li class="list-group-item list-group-item-light text-dark d-flex justify-content-between align-items-center">
-                    {{ record.0 }}
-                    <span class="badge badge-primary">
-                        {{record.1}}
-                    </span>
+            {% if render_list == 0 %}
+                <li class="list-group-item list-group-item-danger text-dark d-flex justify-content-between align-items-center">
+                    You haven't made any changes to your project yet! Try adding some components and breaking down your project
+                    to get started.
                 </li>
-            {% endfor %}
+            {% else %}
+                {% for record in render_list %}
+                    <li class="list-group-item list-group-item-light text-dark d-flex justify-content-between align-items-center">
+                        {{ record.0 }}
+                        <span class="badge badge-primary">
+                            {{record.1}}
+                        </span>
+                    </li>
+                {% endfor %}
+            {% endif %}
         </ul>
     </div>
 
 </div>
-<
 {% endblock content %}
