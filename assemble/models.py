@@ -62,7 +62,8 @@ class ProjectComponent(models.Model):
     description = models.CharField(max_length=200,blank=True) # can change this
     slug = models.SlugField(max_length=100,unique=True,blank=True,null=True)
     completed = models.BooleanField(default=False) # can change this
-    task = models.ForeignKey('self',null=True,default=None,related_name="component",on_delete=models.CASCADE)
+    task = models.ForeignKey('self',null=True,default=None,related_name="component",
+                             on_delete=models.CASCADE)
     project = models.ForeignKey(Project,on_delete=models.CASCADE)
     history = HistoricalRecords()
 
@@ -210,6 +211,10 @@ def create_strings_from_queryset(ordered_queryset):
     if ordered_queryset != 0:
         render_list = []
         for record in ordered_queryset:
+            user = record.history_user
+            date = record.history_date.strftime('%b/%d/%Y %H:%M')
+            component = record.name
+            project = record.project
             if record.prev_record:
                 # if this item has been edited
                 diff = record.diff_against(record.prev_record)
@@ -218,7 +223,7 @@ def create_strings_from_queryset(ordered_queryset):
                 field = changes.field
                 old = changes.old
                 new = changes.new
-                date = record.history_date.strftime('%b/%d/%Y %H:%M')
+
                 if field == "name" or field == "description":
                     render_list.append([f"{user} changed the {field} from '{old}' to '{new}'",date])
                 else:
@@ -228,10 +233,6 @@ def create_strings_from_queryset(ordered_queryset):
                                         f"{new}",
                                         date])
             else:
-                user = record.history_user
-                date = record.history_date.strftime('%b/%d/%Y %H:%M')
-                component = record.name
-                project = record.project
                 if record.task == None:
                     render_list.append([f"{user} added the component '{component}' to '{project}'",
                                         date])

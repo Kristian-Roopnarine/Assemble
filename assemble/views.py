@@ -111,6 +111,7 @@ class ProjectList(LoginRequiredMixin,ListView):
         is_me = Profile.objects.get(user=self.request.user)
         return Project.objects.filter(user=is_me)
 
+
 # view to create more projects
 class ProjectCreate(LoginRequiredMixin,CreateView):
     """
@@ -185,9 +186,14 @@ def project_detail_view(request,project_slug):
     # get the components of the project
     # task=None ensures that the component is not a task!
     project_components = ProjectComponent.objects.filter(project__name=project).filter(task=None)
+    tasks = project.projectcomponent_set.all()
+    total_tasks_count = tasks.count() - project_components.count()
+    tasks_finished = tasks.filter(completed=True).count()
+    percent_finished =  round(100 * (tasks_finished/total_tasks_count))
     context = {
         'project':project,
         'project_components':project_components,
+        'percent_finished':percent_finished
     }
     return render(request,'assemble/project_detail.html',context)
 

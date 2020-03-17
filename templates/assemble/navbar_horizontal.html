@@ -5,9 +5,7 @@
     </a>
 
     <ul class="navbar-nav mr-auto">
-        <li class="nav-item active">
-            <a class="nav-link disabled text-white">{{ user.username }} </a>
-        </li>
+
 
         {% if not user.is_authenticated %}
             <li class="nav-item">
@@ -29,6 +27,8 @@
                 </a>
             </li>
         </ul>
+        <a class="nav-link disabled navbar-text text-white">{{ user.username }}</a>
+
         <a class="nav-link text-white navbar-text" href="{% url 'logged_out' %}">Log out</a>
         <form class="form-inline" method="post" action="{% url 'search-user' %}">
             {% csrf_token %}

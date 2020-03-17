@@ -4,31 +4,34 @@
 
 {% block content %}
 <div class="text-center my-3">
-    <h1>Project List <a class="btn btn-info" href="{% url 'project-create' %}">Add project</a></h1>
+
 </div>
 
 <div class="text-center">
-    <div class="row justify-content-center">
+    <div class="row">
+        <div class="col-sm-3 col-md-3">
+            <h1 class="pt-5">Project List</h1>
+            <a class="btn btn-info" href="{% url 'project-create' %}"><i class="fa fa-folder-open"></i> Add project</a>
+        </div>
+        <div class="col-sm-9 col-md-9">
+            <div class="row">
         {% for project in project_list %}
-            <div class="col-sm-3 col-md-3">
-
-                    <div class="card text-white bg-secondary mb-3" style="max-width: 18rem;">
-                        <div class="card-header">
-                            <h3>
-                                <a class="text-white" style="text-decoration:none;" href="{% url 'project-detail' project.slug %}">{{ project.name }}</a>
-                                {% if project.owner.user == request.user %}
-                                    <a href="{% url 'edit-project' project.id %}"><span style="color:white;font-size:1rem;"><i class="fa fa-edit"></i></span></a>
-                                    <a href="{% url 'delete-project' project.id %}"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a>
-                                {% endif %}
-                            </h3>
+                <div class="col-sm-3 col-md-3">
+                        <div class="card text-white mb-3" style="max-width: 18rem;background: rgba(23,162,184,0.5);">
+                            <div class="card-header p-4">
+                                <h3>
+                                    <a class="text-white " style="text-decoration:none;" href="{% url 'project-detail' project.slug %}">{{ project.name }}</a>
+                                    {% if project.owner.user == request.user %}
+                                        <a href="{% url 'edit-project' project.id %}"><span style="color:white;font-size:1rem;"><i class="fa fa-edit"></i></span></a>
+                                        <a href="{% url 'delete-project' project.id %}"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a>
+                                    {% endif %}
+                                </h3>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <p class="card-text">{{project.description}}</p>
-                        </div>
-                    </div>
-
-            </div>            
+                </div>
         {% endfor %}
+            </div>
+        </div>
     </div>
 </div>
 

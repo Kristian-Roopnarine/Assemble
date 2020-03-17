@@ -6,7 +6,9 @@
     <div class="col-sm-3">
         
             <ul class="list-group">
-                <li class="list-group-item list-group-item-success text-dark"> Your Current Projects: </li>
+                <li class="list-group-item list-group-item-success text-dark">
+                    <i class="fa fa-book"></i> Your Current Projects:
+                </li>
             {% for project in current_projects %}
                 <li class="list-group-item d-flex justify-content-between align-items-center border rounded-0 list-group-item-light">{{project}}</li>
             {% endfor %}
@@ -16,12 +18,12 @@
     <div class="col-sm-3">
         <div class="card">
             <div class="card-header bg-primary text-white">
-                Friends list
+                <i class="fa fa-users"></i>  Friends list
             </div>
             <ul class="list-group">
             {% if profile.friends.all.count != 0 %}
                 {% for friend in profile.friends.all %}
-                    <li class="list-group-item d-flex justify-content-between align-items-center border rounded-0 list-group-item"> {{friend}} </li>
+                    <li class="list-group-item border rounded-0 list-group-item"> <i class="fa fa-user"></i> {{friend}} </li>
                 {% endfor %}
             {% else %}
                     <li class="list-group-item d-flex justify-content-between align-items-center border rounded-0 list-group-item">Search for a friend in the top right!</li>
@@ -32,7 +34,7 @@
     <div class="col-sm-3">
         <div class="card">
             <div class="card-header bg-warning">
-                Friend Requests
+                 <i class="fa fa-paper-plane"></i> Friend Requests
             </div>
             <ul class="list-group">
             {% if friend_requests.count != 0 %}
