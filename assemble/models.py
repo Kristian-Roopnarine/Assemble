@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.text import slugify
 from django.urls import reverse
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save,pre_save,pre_delete,post_delete,m2m_changed
 from simple_history.models import HistoricalRecords
 
 """
@@ -88,6 +88,7 @@ class ProjectComponent(models.Model):
         return reverse('project-detail',kwargs={'project_slug':self.project.slug})
 
 
+
 class Profile(models.Model):
     user = models.OneToOneField(User,on_delete=models.CASCADE)
     slug = models.SlugField(blank=True)
@@ -144,19 +145,94 @@ class ProjectHistory(models.Model):
     before = models.TextField(max_length=100,blank=True,null=True)
     after  = models.TextField(max_length=100,blank=True,null=True)
     date_changed = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(Profile,on_delete=models.CASCADE)
-    name = models.ForeignKey(Project,on_delete=models.CASCADE)
+
+    # might have to change the save method to include the profile
+    user = models.ForeignKey(Profile,on_delete=models.CASCADE,blank=True,null=True)
+    project = models.ForeignKey(Project,on_delete=models.CASCADE)
 
     # maybe add a method to return a string of the fields to display?
     # -- will need name of user
     # -- was it an edit,create or delete
     # -- project name
     # -- before and after value
+    
+    #### Possible signals to use ################################
+    # post_save, pre_save, post_delete, pre_delete, m2m_changed #
+    #############################################################
+    
+    """ 
+    pre_save(sender,instance,raw,using,update_fields):
+    This is sent at the beginning of a model's save method
+        sender- the model class
+        instance- the actual instance being saved
+        raw - A boolean; True if the model is saved exactly as presented
+        using- the database alias being used
+        update_fields - the set of fields to update as passed to Model.save() or None if update_fields wasn't passed.
+    
+    post_save(sender,instance,raw,using,update_fields)
+    This is sent at the end of the save method
+        sender - the model class
+        instance- the actual instance being saved
+        created  -  A boolean, True if a new record is created
+        raw - same as pre_save
+        using - ""
+        updated_fields - ""
+
+    pre_delete(sender,instance,using):
+    Sent at the beginning of a models delete() method and a queryset's delete() method
+
+        sender- the model class
+        instance - the actual instance being deleted
+        using - ""
+
+    post_delete(sender,instance,using):
+    Sent at the end of a model's delete() and a queryset's delete9) method.
+
+        sender - the model class
+        instance - the actual instance being deleted. Note that the object will no longer be in the database.
+        using - the database alias being used
+
+    m2m_changed(sender,instance,action,reverse,model,pk_set,using):
+    Sent when a ManyToManyField is changed on a model instance. Strictly speaking, this is not a model signal since it is sent by the ManyToManyField, but it complements the pre_save/post_save and pre_delete/post_delete when it comes to tracking changes to models.
+
+        sender - The immediate model calss describing the ManyToManyField. This class is automatically created when a many-to-many field is defined; you can access it using thr though attribute on the many-to-many-field.
+        instance- the instance whose many-to-many relation is updated. This can be an instance of the sender, or of the class the m2m is related to.
+        action- a string indicating the type of update that is done to the relationship.
+            "pre_add" - sent before one or more objects are added to the relation.
+            "post_add" - sent after one or more objects are added to the relation.
+            "pre_remove" - sent ebfore one or more objects are removed from the relation.
+    """
+
 
 
     def __str__(self):
         return self.name + str(self.date_changed)
 
+def pre_delete_project_component_model_reciever(sender,instance,*args,**kwargs):
+    ProjectHistory.objects.create(after=f"Deleted {instance.name}",project=instance.project)
+
+def post_save_project_component_model_reciever(sender,instance,created,*args,**kwargs):
+    """Detects when a project component is created or edited and creates a ProjectHistory instance.
+    
+    Arguments:
+        sender {[class]} -- [the model class]
+        instance {[class]} -- [the instance being created]
+        created {[boolean]} -- [True or False, whether the instance was created]
+    """
+    print(kwargs)
+    print(created)
+    if created:
+        try:
+            ProjectHistory.objects.create(after=instance.name,project=instance.project)
+            print("created project history.")
+        except:
+            print("some error")
+    else:
+        print("edited")
+
+# it worked on a project component
+post_save.connect(post_save_project_component_model_reciever,sender=ProjectComponent)        
+pre_delete.connect(pre_delete_project_component_model_reciever,sender=ProjectComponent)
 
 def get_list_of_project_component_history_records(project):
     """

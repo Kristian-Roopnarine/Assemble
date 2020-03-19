@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from assemble.models import *
 from django.db import IntegrityError
 from django.core.exceptions import ObjectDoesNotExist
+import datetime as dt
 
 # Create your tests here.
 class UserProfileTestCase(TestCase):
@@ -113,3 +114,31 @@ class ProjectTestCase(TestCase):
         except ObjectDoesNotExist:
             pass
 
+
+class ProjectHistoryTestCase(TestCase):
+
+    def setUp(self):
+
+        # need to create profile
+        User.objects.create(username="bob")
+        User.objects.create(username="bob1")
+        bob,bob1 = Profile.objects.get(user__username="bob"),Profile.objects.get(user__username="bob1")
+        # need to create project
+        test_project = Project.objects.create(name="test1",owner=bob)
+        test_project.user.set([bob,bob1])
+        # create project component
+        ProjectComponent.objects.create(name="test component",project=test_project)
+        # test the post_save method to see if it saves when the project component is created
+    
+    def test_creating_project_component_and_project_history(self):
+        """Test whether creating project components adds a projecthistory instance."""
+        test = ProjectHistory.objects.get(id=1)
+        self.assertEqual(test.after,"test component")
+
+    def test_deleting_project_component_and_project_history(self):
+        """Test whether editing project components adds a projecthistory instance."""
+        test = ProjectComponent.objects.get(id=1)
+        test.delete()
+        test_history = ProjectHistory.objects.get(id=2)
+
+        self.assertEqual(test_history.after,"Deleted test component")
