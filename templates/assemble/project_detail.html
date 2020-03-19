@@ -3,11 +3,13 @@
 
 
 {% block content %}
+
+
 <div class="container text-center my-3">
     <h1>{{ project.name }}</h1>
     <h4>{{project.description}}</h4>
-    <div class="progress ">
-        <div class="progress-bar progress-bar-striped bg-info" role="progressbar" style="width: {{percent_finished}}%;border:1px;" aria-valuenow="{{percent_finished}}" aria-valuemin="0" aria-valuemax="100">{{percent_finished}}% Completed</div>
+    <div class="progress">
+        <div class="progress-bar progress-bar-striped bg-info" role="progressbar" style="width:{{percent_finished}}%;" aria-valuenow="{{percent_finished}}" aria-valuemin="0" aria-valuemax="100">{{percent_finished}}% Completed</div>
     </div>
 </div>
 

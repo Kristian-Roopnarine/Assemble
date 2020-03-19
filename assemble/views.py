@@ -22,7 +22,7 @@ from django.contrib.auth.models import User
 ### USER AUTHENTIFICATION VIEWS
 ############################################
 # home
-@login_required
+
 def index(request):
     """
     The home page view which requires a login. If the user is not logged in, they are redirected to the login page.
@@ -189,7 +189,10 @@ def project_detail_view(request,project_slug):
     tasks = project.projectcomponent_set.all()
     total_tasks_count = tasks.count() - project_components.count()
     tasks_finished = tasks.filter(completed=True).count()
-    percent_finished =  round(100 * (tasks_finished/total_tasks_count))
+    try:
+        percent_finished =  round(100 * (tasks_finished/total_tasks_count))
+    except ZeroDivisionError:
+        percent_finished = 0
     context = {
         'project':project,
         'project_components':project_components,

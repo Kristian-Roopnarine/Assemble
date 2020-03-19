@@ -59,7 +59,6 @@ class Project(models.Model):
 
 class ProjectComponent(models.Model):
     name = models.CharField(max_length=200) # can change this
-    description = models.CharField(max_length=200,blank=True) # can change this
     slug = models.SlugField(max_length=100,unique=True,blank=True,null=True)
     completed = models.BooleanField(default=False) # can change this
     task = models.ForeignKey('self',null=True,default=None,related_name="component",
@@ -140,6 +139,25 @@ class UserFeedback(models.Model):
     def __str__(self):
         return self.title
 
+class ProjectHistory(models.Model):
+    # if the history object is being created then the before field will be empty.
+    before = models.TextField(max_length=100,blank=True,null=True)
+    after  = models.TextField(max_length=100,blank=True,null=True)
+    date_changed = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(Profile,on_delete=models.CASCADE)
+    name = models.ForeignKey(Project,on_delete=models.CASCADE)
+
+    # maybe add a method to return a string of the fields to display?
+    # -- will need name of user
+    # -- was it an edit,create or delete
+    # -- project name
+    # -- before and after value
+
+
+    def __str__(self):
+        return self.name + str(self.date_changed)
+
+
 def get_list_of_project_component_history_records(project):
     """
     :param project:  A project model object that has been queried.
@@ -219,7 +237,10 @@ def create_strings_from_queryset(ordered_queryset):
                 # if this item has been edited
                 diff = record.diff_against(record.prev_record)
                 user = record.history_user
-                changes = diff.changes[0]
+                try:
+                    changes = diff.changes[0]
+                except IndexError:
+                    continue
                 field = changes.field
                 old = changes.old
                 new = changes.new
