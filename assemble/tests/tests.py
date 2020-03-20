@@ -118,7 +118,6 @@ class ProjectTestCase(TestCase):
 class ProjectHistoryTestCase(TestCase):
 
     def setUp(self):
-
         # need to create profile
         User.objects.create(username="bob")
         User.objects.create(username="bob1")
@@ -127,7 +126,8 @@ class ProjectHistoryTestCase(TestCase):
         test_project = Project.objects.create(name="test1",owner=bob)
         test_project.user.set([bob,bob1])
         # create project component
-        ProjectComponent.objects.create(name="test component",project=test_project)
+        comp1=ProjectComponent.objects.create(name="test component",project=test_project)
+        ProjectComponent.objects.create(name="test task",task=comp1,project=test_project)
         # test the post_save method to see if it saves when the project component is created
     
     def test_creating_project_component_and_project_history(self):
@@ -135,10 +135,40 @@ class ProjectHistoryTestCase(TestCase):
         test = ProjectHistory.objects.get(id=1)
         self.assertEqual(test.after,"test component")
 
-    def test_deleting_project_component_and_project_history(self):
-        """Test whether editing project components adds a projecthistory instance."""
+    def test_deleting_project_component_adds_project_history(self):
+        """Test whether deleting project components adds a projecthistory instance."""
         test = ProjectComponent.objects.get(id=1)
         test.delete()
         test_history = ProjectHistory.objects.get(id=2)
 
         self.assertEqual(test_history.after,"Deleted test component")
+    
+    def test_editing_project_component_adds_project_history(self):
+        """Test whether editing project components adds a projecthistory instance."""
+        test = ProjectComponent.objects.get(id=1)
+        test.name = 'test'
+        # force call the save method to trigger the signal
+        test.save()
+        # it works!
+        self.assertEqual(ProjectHistory.objects.get(id=2).after,'test')
+        self.assertEqual(ProjectHistory.objects.get(id=2).before,'test component')
+    
+    def test_multiple_edits_on_project_component(self):
+        """ Testing whether projecthistory instances are created for multiple edits on project components."""
+        # id = 1 is component
+        test = ProjectComponent.objects.get(id=1)
+        test.name="first change"
+        test.save()
+        first_history = ProjectHistory.objects.get(id=3)
+        self.assertEqual(first_history.before,'test component')
+        self.assertEqual(first_history.after,"first change")
+        test.name="second change"
+        test.save()
+        second_history = ProjectHistory.objects.get(id=4)
+        history_length = ProjectHistory.objects.all().count()
+        self.assertEqual(second_history.before,'first change')
+        self.assertEqual(second_history.after,"second change")
+        self.assertEqual(history_length,4)
+
+    def test_creating_tasks_for_components_(self):
+        pass

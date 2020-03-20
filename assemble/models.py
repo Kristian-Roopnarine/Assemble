@@ -66,9 +66,15 @@ class ProjectComponent(models.Model):
     project = models.ForeignKey(Project,on_delete=models.CASCADE)
     history = HistoricalRecords()
 
+    __original_name = None
 
     def __str__(self):
         return self.name
+    
+    def __init__(self,*args,**kwargs):
+        """Calls super() which calls the init function of ProjectComponent, then sets __original_name = name."""
+        super(ProjectComponent,self).__init__(*args,**kwargs)
+        self.__original_name=self.name
     
     def _get_unique_slug(self):
         slug = slugify(self.name)
@@ -80,9 +86,16 @@ class ProjectComponent(models.Model):
         return unique_slug
     
     def save(self,*args,**kwargs):
+        """If self.name has been changed(via edit) then created a project history instance."""
+        if self.name != self.__original_name:
+            ProjectHistory.objects.create(before=self.__original_name,after=self.name,project=self.project)
         if not self.slug:
             self.slug=self._get_unique_slug()
         super().save(*args,**kwargs)
+        self.__original_name = self.name
+        
+        
+    
     
     def get_absolute_url(self):
         return reverse('project-detail',kwargs={'project_slug':self.project.slug})
@@ -219,16 +232,12 @@ def post_save_project_component_model_reciever(sender,instance,created,*args,**k
         instance {[class]} -- [the instance being created]
         created {[boolean]} -- [True or False, whether the instance was created]
     """
-    print(kwargs)
-    print(created)
     if created:
         try:
             ProjectHistory.objects.create(after=instance.name,project=instance.project)
-            print("created project history.")
+            
         except:
-            print("some error")
-    else:
-        print("edited")
+            pass
 
 # it worked on a project component
 post_save.connect(post_save_project_component_model_reciever,sender=ProjectComponent)        
