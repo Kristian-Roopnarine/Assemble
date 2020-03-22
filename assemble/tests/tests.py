@@ -126,9 +126,17 @@ class ProjectHistoryTestCase(TestCase):
         test_project = Project.objects.create(name="test1",owner=bob)
         test_project.user.set([bob,bob1])
         # create project component
+
+        #id=1
+        #project history id=1 for this instance created
         comp1=ProjectComponent.objects.create(name="test component",project=test_project)
+
+        #id=2
+        #project history id=2 for this instance created
         ProjectComponent.objects.create(name="test task",task=comp1,project=test_project)
+
         # test the post_save method to see if it saves when the project component is created
+
     
     def test_creating_project_component_and_project_history(self):
         """Test whether creating project components adds a projecthistory instance."""
@@ -139,9 +147,9 @@ class ProjectHistoryTestCase(TestCase):
         """Test whether deleting project components adds a projecthistory instance."""
         test = ProjectComponent.objects.get(id=1)
         test.delete()
-        test_history = ProjectHistory.objects.get(id=2)
-
-        self.assertEqual(test_history.after,"Deleted test component")
+        test_history = ProjectHistory.objects.get(id=3)
+        self.assertEqual(test_history.before,"test component")
+        self.assertEqual(test_history.after,"deleted")
     
     def test_editing_project_component_adds_project_history(self):
         """Test whether editing project components adds a projecthistory instance."""
@@ -149,9 +157,12 @@ class ProjectHistoryTestCase(TestCase):
         test.name = 'test'
         # force call the save method to trigger the signal
         test.save()
+        #id=1 is the component that was created
+        #id=2 is the edited component
         # it works!
-        self.assertEqual(ProjectHistory.objects.get(id=2).after,'test')
-        self.assertEqual(ProjectHistory.objects.get(id=2).before,'test component')
+        self.assertEqual(ProjectHistory.objects.get(id=1).after,'test component')
+        self.assertEqual(ProjectHistory.objects.get(id=3).before,'test component')
+        self.assertEqual(ProjectHistory.objects.get(id=3).after,'test')
     
     def test_multiple_edits_on_project_component(self):
         """ Testing whether projecthistory instances are created for multiple edits on project components."""
@@ -170,5 +181,40 @@ class ProjectHistoryTestCase(TestCase):
         self.assertEqual(second_history.after,"second change")
         self.assertEqual(history_length,4)
 
-    def test_creating_tasks_for_components_(self):
-        pass
+    def test_creating_tasks_for_components(self):
+        test = ProjectComponent.objects.get(id=2)
+        self.assertEqual(test.name,"test task")
+    
+    def test_editing_tasks_for_components(self):
+        test = ProjectComponent.objects.get(id=2)
+        test.name="first change"
+        test.save()
+        test_history=ProjectHistory.objects.get(id=3)
+        total_history = ProjectHistory.objects.all().count()
+        self.assertEqual(test_history.before,"test task")
+        self.assertEqual(test_history.after,"first change")
+        self.assertEqual(total_history,3)
+
+    def test_history_string_method_when_creating(self):
+        test1 = ProjectHistory.objects.get(id=1)
+        test2 = ProjectHistory.objects.get(id=2)
+        self.assertEqual(test1.list_string,"test component was created.")
+        self.assertEqual(test2.list_string,"test task was created.")
+    
+    def test_history_string_method_when_editing(self):
+        test1 = ProjectComponent.objects.get(id=1)
+        test1.name = "changing"
+        test1.save()
+        test_history = ProjectHistory.objects.get(id=3)
+        self.assertEqual(test1.name,"changing")
+        self.assertEqual(test_history.before,"test component")
+        self.assertEqual(test_history.after,"changing")
+        self.assertEqual(test_history.list_string,"test component was edited to changing.")
+    
+    def test_history_string_method_when_deleting(self):
+        test1 = ProjectComponent.objects.get(id=2)
+        test1.delete()
+        test_history = ProjectHistory.objects.get(id=3)
+        self.assertEqual(test_history.before,"test task")
+        self.assertEqual(test_history.after,"deleted")
+        self.assertEqual(test_history.list_string,"test task was deleted.")

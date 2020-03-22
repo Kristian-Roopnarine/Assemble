@@ -74,7 +74,7 @@ class ProjectComponent(models.Model):
     def __init__(self,*args,**kwargs):
         """Calls super() which calls the init function of ProjectComponent, then sets __original_name = name."""
         super(ProjectComponent,self).__init__(*args,**kwargs)
-        self.__original_name=self.name
+        self.__original_name = self.name
     
     def _get_unique_slug(self):
         slug = slugify(self.name)
@@ -86,7 +86,7 @@ class ProjectComponent(models.Model):
         return unique_slug
     
     def save(self,*args,**kwargs):
-        """If self.name has been changed(via edit) then created a project history instance."""
+        """If self.name has been changed(via edit) then created a project history"""
         if self.name != self.__original_name:
             ProjectHistory.objects.create(before=self.__original_name,after=self.name,project=self.project)
         if not self.slug:
@@ -94,8 +94,6 @@ class ProjectComponent(models.Model):
         super().save(*args,**kwargs)
         self.__original_name = self.name
         
-        
-    
     
     def get_absolute_url(self):
         return reverse('project-detail',kwargs={'project_slug':self.project.slug})
@@ -158,10 +156,17 @@ class ProjectHistory(models.Model):
     before = models.TextField(max_length=100,blank=True,null=True)
     after  = models.TextField(max_length=100,blank=True,null=True)
     date_changed = models.DateTimeField(auto_now_add=True)
-
+    
     # might have to change the save method to include the profile
     user = models.ForeignKey(Profile,on_delete=models.CASCADE,blank=True,null=True)
     project = models.ForeignKey(Project,on_delete=models.CASCADE)
+    list_string = None
+
+    #it works for creating!
+    def __init__(self,*args,**kwargs):
+        super(ProjectHistory,self).__init__(*args,**kwargs)
+        self.create_history_string()
+    
 
     # maybe add a method to return a string of the fields to display?
     # -- will need name of user
@@ -216,16 +221,25 @@ class ProjectHistory(models.Model):
             "pre_remove" - sent ebfore one or more objects are removed from the relation.
     """
 
+    def create_history_string(self):
+        if self.before == None:
+            self.list_string = f"{self.after} was created."
+        elif self.after == 'deleted':
+            # it was deleted
+            self.list_string = f"{self.before} was deleted."
+        else:
+            self.list_string = f"{self.before} was edited to {self.after}."
 
 
     def __str__(self):
-        return self.name + str(self.date_changed)
+        return self.list_string
 
 def pre_delete_project_component_model_reciever(sender,instance,*args,**kwargs):
-    ProjectHistory.objects.create(after=f"Deleted {instance.name}",project=instance.project)
+    """ Detects when a project component is deleted and creates a ProjectHistory instance."""
+    ProjectHistory.objects.create(before=instance.name,after='deleted',project=instance.project)
 
 def post_save_project_component_model_reciever(sender,instance,created,*args,**kwargs):
-    """Detects when a project component is created or edited and creates a ProjectHistory instance.
+    """Detects when a project component is created and creates a ProjectHistory instance.
     
     Arguments:
         sender {[class]} -- [the model class]
