@@ -36,7 +36,7 @@ class Project(models.Model):
 
     def __str__(self):
         return self.name
-    
+
     def _get_unique_slug(self):
         slug = slugify(self.name)
         unique_slug = slug
@@ -45,12 +45,12 @@ class Project(models.Model):
             unique_slug=f"{slug}-{num}"
             num += 1
         return unique_slug
-    
+
     def save(self,*args,**kwargs):
         if not self.slug:
             self.slug=self._get_unique_slug()
         super().save(*args,**kwargs)
-    
+
     def get_absolute_url(self):
         return reverse('project-detail',kwargs={'project_slug':self.slug})
 
@@ -67,15 +67,20 @@ class ProjectComponent(models.Model):
     history = HistoricalRecords()
 
     __original_name = None
+    __original_status = None
 
     def __str__(self):
         return self.name
-    
+
     def __init__(self,*args,**kwargs):
         """Calls super() which calls the init function of ProjectComponent, then sets __original_name = name."""
         super(ProjectComponent,self).__init__(*args,**kwargs)
         self.__original_name = self.name
-    
+
+        # this line makes the task_finish_detail view work
+        # before it wasn't registering when completed went from true to false but the tests were working
+        self.__original_status = self.completed
+
     def _get_unique_slug(self):
         slug = slugify(self.name)
         unique_slug = slug
@@ -84,17 +89,30 @@ class ProjectComponent(models.Model):
             unique_slug=f"{slug}-{num}"
             num += 1
         return unique_slug
-    
+
     def save(self,*args,**kwargs):
         """If self.name has been changed(via edit) then created a project history"""
+
         if self.name != self.__original_name:
             ProjectHistory.objects.create(before=self.__original_name,after=self.name,project=self.project)
+
+        if self.__original_status != self.completed:
+            # changed from false to true or true to false
+
+            ProjectHistory.objects.create(before=f"'{self.name}' changed to {self.completed}.",after="status",project=self.project)
+
         if not self.slug:
             self.slug=self._get_unique_slug()
+
+        
         super().save(*args,**kwargs)
+        self.__original_status = self.completed
         self.__original_name = self.name
         
-    
+
+
+
+
     def get_absolute_url(self):
         return reverse('project-detail',kwargs={'project_slug':self.project.slug})
 
@@ -118,12 +136,12 @@ class Profile(models.Model):
             unique_slug=f"{slug}-{num}"
             num += 1
         return unique_slug
-    
+
     def save(self,*args,**kwargs):
         if not self.slug:
             self.slug=self._get_unique_slug()
         super().save(*args,**kwargs)
-    
+
 def post_save_user_model_receiver(sender,instance,created,*args,**kwargs):
     if created:
         try:
@@ -140,7 +158,7 @@ class FriendRequest(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"From {self.from_user} to {self.to_user}. Sent {self.timestamp}"    
+        return f"From {self.from_user} to {self.to_user}. Sent {self.timestamp}"
 
 
 class UserFeedback(models.Model):
@@ -156,7 +174,7 @@ class ProjectHistory(models.Model):
     before = models.TextField(max_length=100,blank=True,null=True)
     after  = models.TextField(max_length=100,blank=True,null=True)
     date_changed = models.DateTimeField(auto_now_add=True)
-    
+
     # might have to change the save method to include the profile
     user = models.ForeignKey(Profile,on_delete=models.CASCADE,blank=True,null=True)
     project = models.ForeignKey(Project,on_delete=models.CASCADE)
@@ -166,19 +184,18 @@ class ProjectHistory(models.Model):
     def __init__(self,*args,**kwargs):
         super(ProjectHistory,self).__init__(*args,**kwargs)
         self.create_history_string()
-    
 
     # maybe add a method to return a string of the fields to display?
     # -- will need name of user
     # -- was it an edit,create or delete
     # -- project name
     # -- before and after value
-    
+
     #### Possible signals to use ################################
     # post_save, pre_save, post_delete, pre_delete, m2m_changed #
     #############################################################
-    
-    """ 
+
+    """
     pre_save(sender,instance,raw,using,update_fields):
     This is sent at the beginning of a model's save method
         sender- the model class
@@ -186,7 +203,7 @@ class ProjectHistory(models.Model):
         raw - A boolean; True if the model is saved exactly as presented
         using- the database alias being used
         update_fields - the set of fields to update as passed to Model.save() or None if update_fields wasn't passed.
-    
+
     post_save(sender,instance,raw,using,update_fields)
     This is sent at the end of the save method
         sender - the model class
@@ -222,13 +239,19 @@ class ProjectHistory(models.Model):
     """
 
     def create_history_string(self):
+        """
+        When a ProjectHistory instance is created, generate a string to be displayed on Assemble based on the action of the component/task.
+        """
         if self.before == None:
-            self.list_string = f"{self.after} was created."
+            self.list_string = f"'{self.after}' was created."
         elif self.after == 'deleted':
             # it was deleted
-            self.list_string = f"{self.before} was deleted."
+            self.list_string = f"'{self.before}' was deleted."
+        elif self.after == 'status':
+            # task status was changed
+            self.list_string = self.before
         else:
-            self.list_string = f"{self.before} was edited to {self.after}."
+            self.list_string = f"'{self.before}' was edited to '{self.after}'."
 
 
     def __str__(self):
@@ -240,7 +263,7 @@ def pre_delete_project_component_model_reciever(sender,instance,*args,**kwargs):
 
 def post_save_project_component_model_reciever(sender,instance,created,*args,**kwargs):
     """Detects when a project component is created and creates a ProjectHistory instance.
-    
+
     Arguments:
         sender {[class]} -- [the model class]
         instance {[class]} -- [the instance being created]
@@ -249,12 +272,12 @@ def post_save_project_component_model_reciever(sender,instance,created,*args,**k
     if created:
         try:
             ProjectHistory.objects.create(after=instance.name,project=instance.project)
-            
+
         except:
             pass
 
 # it worked on a project component
-post_save.connect(post_save_project_component_model_reciever,sender=ProjectComponent)        
+post_save.connect(post_save_project_component_model_reciever,sender=ProjectComponent)
 pre_delete.connect(pre_delete_project_component_model_reciever,sender=ProjectComponent)
 
 def get_list_of_project_component_history_records(project):
@@ -363,4 +386,3 @@ def create_strings_from_queryset(ordered_queryset):
         return render_list
     else:
         return 0
-

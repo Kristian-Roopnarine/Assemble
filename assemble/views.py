@@ -298,7 +298,7 @@ class ProjectComponentCreate(LoginRequiredMixin,CreateView):
         [http response] -- [If the form is saved successfully redirects the user to the project-detail.]
     """
     model = ProjectComponent
-    fields = ['name','description']
+    fields = ['name']
     
     def form_valid(self,form):
         """
@@ -410,8 +410,8 @@ def finish_task_detail(request,pk):
         [http response] -- [redirects the user to project-detail.]
     """
     task = get_object_or_404(ProjectComponent,id=pk)
-    before=task.completed
-    task.completed= not before
+    bf = task.completed
+    task.completed = not bf
     task.save()
     messages.success(request,f"The task '{task}' completed status was changed to {task.completed}.")
     return redirect(task.project)

@@ -114,6 +114,25 @@ class ProjectTestCase(TestCase):
         except ObjectDoesNotExist:
             pass
 
+class ProjectComponentTestCase(TestCase):
+    def setUp(self):
+        User.objects.create(username="bob")
+        User.objects.create(username="bob1")
+        bob,bob1 = Profile.objects.get(user__username="bob"),Profile.objects.get(user__username="bob1")
+        # need to create project
+        test_project = Project.objects.create(name="test1",owner=bob)
+        test_project.user.set([bob,bob1])
+        # create project component
+
+        #id=1
+        #project history id=1 for this instance created
+        comp1=ProjectComponent.objects.create(name="test component",project=test_project)
+
+        #id=2
+        #project history id=2 for this instance created
+        ProjectComponent.objects.create(name="test task",task=comp1,project=test_project)
+
+
 
 class ProjectHistoryTestCase(TestCase):
 
@@ -182,10 +201,14 @@ class ProjectHistoryTestCase(TestCase):
         self.assertEqual(history_length,4)
 
     def test_creating_tasks_for_components(self):
+        """Testing whether creating tasks works for components.
+        """
         test = ProjectComponent.objects.get(id=2)
         self.assertEqual(test.name,"test task")
     
     def test_editing_tasks_for_components(self):
+        """Testing editing tasks creates projectshistory instances.
+        """
         test = ProjectComponent.objects.get(id=2)
         test.name="first change"
         test.save()
@@ -196,12 +219,16 @@ class ProjectHistoryTestCase(TestCase):
         self.assertEqual(total_history,3)
 
     def test_history_string_method_when_creating(self):
+        """Testing list_string method when creating project history.
+        """
         test1 = ProjectHistory.objects.get(id=1)
         test2 = ProjectHistory.objects.get(id=2)
-        self.assertEqual(test1.list_string,"test component was created.")
-        self.assertEqual(test2.list_string,"test task was created.")
+        self.assertEqual(test1.list_string,"'test component' was created.")
+        self.assertEqual(test2.list_string,"'test task' was created.")
     
     def test_history_string_method_when_editing(self):
+        """Testing string_method when editing history.
+        """
         test1 = ProjectComponent.objects.get(id=1)
         test1.name = "changing"
         test1.save()
@@ -209,12 +236,42 @@ class ProjectHistoryTestCase(TestCase):
         self.assertEqual(test1.name,"changing")
         self.assertEqual(test_history.before,"test component")
         self.assertEqual(test_history.after,"changing")
-        self.assertEqual(test_history.list_string,"test component was edited to changing.")
+        self.assertEqual(test_history.list_string,"'test component' was edited to 'changing'.")
     
     def test_history_string_method_when_deleting(self):
+        """Testing string_method when deleting an instance.
+        """
         test1 = ProjectComponent.objects.get(id=2)
         test1.delete()
         test_history = ProjectHistory.objects.get(id=3)
         self.assertEqual(test_history.before,"test task")
         self.assertEqual(test_history.after,"deleted")
-        self.assertEqual(test_history.list_string,"test task was deleted.")
+        self.assertEqual(test_history.list_string,"'test task' was deleted.")
+    
+    def test_task_completed_status_change(self):
+        """Testing the task completed condition.
+        """
+        test1=ProjectComponent.objects.get(id=2)
+        test1.completed=True
+        test1.save()
+        self.assertEqual(test1.completed,True)
+        test_history = ProjectHistory.objects.get(id=3)
+        
+        self.assertEqual(test_history.after,'status')
+        self.assertEqual(test_history.before, "'test task' changed to True.")
+
+    def test_task_multiple_completed_status_change(self):
+        """Testing multiple completed status changes.
+        """
+        test1 = ProjectComponent.objects.get(id=2)
+        test1.completed = True
+        test1.save()
+        self.assertEqual(test1.completed,True)
+        test1.completed = False
+        test1.save()
+        total_history = ProjectHistory.objects.all().count()
+        self.assertEqual(test1.completed,False)
+        self.assertEqual(total_history,4)
+        history_4 = ProjectHistory.objects.get(id=4)
+        self.assertEqual(history_4.before,"'test task' changed to False.")
+        
