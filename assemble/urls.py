@@ -54,7 +54,7 @@ urlpatterns = [
     ############################################
     ### PROJECT COMPONENT/TASK URLS
     ############################################
-    path('project-list/project-detail/project-component-create/<project_slug>/',ProjectComponentCreate.as_view(),name="project-component-create"),
+    path('project-list/project-detail/project-component-create/<project_slug>-<user>/',ProjectComponentCreate.as_view(),name="project-component-create"),
     path('project-list/project-detail/component-task-create/<project_component_slug>/',ProjectTaskCreate.as_view(),name='create-task'),
     path('project-list/project-detail/edit-details/<pk>/',edit_component_or_task,name="edit-details"),
     path('finish-task/<pk>/',finish_task_detail,name="finish-task"),

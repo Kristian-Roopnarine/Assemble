@@ -310,6 +310,7 @@ class ProjectComponentCreate(LoginRequiredMixin,CreateView):
         Returns:
             [http response] -- [redirects the user to the project-detail page if successful.]
         """
+        print(self.kwargs)
         project = Project.objects.get(slug=self.kwargs['project_slug'])
         form.instance.project = project
         super().form_valid(form)
@@ -413,7 +414,7 @@ def finish_task_detail(request,pk):
     bf = task.completed
     task.completed = not bf
     task.save()
-    messages.success(request,f"The task '{task}' completed status was changed to {task.completed}.")
+    #messages.success(request,f"The task '{task}' completed status was changed to {task.completed}.")
     return redirect(task.project)
 
 @login_required

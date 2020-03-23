@@ -110,9 +110,6 @@ class ProjectComponent(models.Model):
         self.__original_name = self.name
         
 
-
-
-
     def get_absolute_url(self):
         return reverse('project-detail',kwargs={'project_slug':self.project.slug})
 
