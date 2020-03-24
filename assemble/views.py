@@ -298,11 +298,12 @@ class ProjectComponentCreate(LoginRequiredMixin,CreateView):
     """
     model = ProjectComponent
     fields = ['name']
-    
+
+
     def form_valid(self,form):
         """
         Overriding the default form_valid method. This adds the component as a child of the parent project.
-        
+
         Arguments:
             form {form} -- [ProjectComponentCreate form]
         
@@ -312,6 +313,7 @@ class ProjectComponentCreate(LoginRequiredMixin,CreateView):
         project = Project.objects.get(slug=self.kwargs['project_slug'])
         form.instance.project = project
         super().form_valid(form)
+        ProjectHistory.objects.create(user=self.request.user.username,previous_field=form.instance.name,status="created",project=form.instance.project)
         messages.success(self.request,f"Added '{form.instance.name}' to {project.name}")
 
         # this takes the models get_absolute_url and redirects to the URL
@@ -358,6 +360,7 @@ class ProjectTaskCreate(LoginRequiredMixin,CreateView):
         form.instance.project = component.project
         form.instance.task = component
         super().form_valid(form)
+        ProjectHistory.objects.create(user=self.request.user.username,previous_field=form.instance.name,status="created",project=form.instance.project)
         messages.success(self.request,f"Added '{form.instance.name}' to '{form.instance.task}'")
         return redirect('project-detail',project_slug=component.project.slug)
     

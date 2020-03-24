@@ -82,11 +82,8 @@ class ProjectComponent(models.Model):
         return unique_slug
 
     def save(self,*args,**kwargs):
-        """If self.name has been changed(via edit) then created a project history"""
         if not self.slug:
             self.slug=self._get_unique_slug()
-
-        
         super().save(*args,**kwargs)
         
         
@@ -217,7 +214,14 @@ class ProjectHistory(models.Model):
     # the logic is the issue
     
     def __str__(self):
-        return self.previous_field
+        if self.status == "deleted":
+            return f"{self.previous_field} was {self.status} by {self.user}."
+        elif self.status == "edited":
+            return f"{self.previous_field} was {self.status} to {self.updated_field} by {self.user}."
+        elif self.status == "updated":
+            return f"{self.previous_field} was {self.status} by {self.user}."
+        elif self.status == "created":
+            return f"{self.previous_field} was created by {self.user}."
 
 
 def pre_delete_project_component_model_reciever(sender,instance,*args,**kwargs):
@@ -240,7 +244,7 @@ def post_save_project_component_model_reciever(sender,instance,created,*args,**k
             pass
 
 # it worked on a project component
-post_save.connect(post_save_project_component_model_reciever,sender=ProjectComponent)
+#post_save.connect(post_save_project_component_model_reciever,sender=ProjectComponent)
 #pre_delete.connect(pre_delete_project_component_model_reciever,sender=ProjectComponent)
 
 def get_list_of_project_component_history_records(project):
