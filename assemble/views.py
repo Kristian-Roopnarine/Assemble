@@ -310,7 +310,6 @@ class ProjectComponentCreate(LoginRequiredMixin,CreateView):
         Returns:
             [http response] -- [redirects the user to the project-detail page if successful.]
         """
-        print(self.kwargs)
         project = Project.objects.get(slug=self.kwargs['project_slug'])
         form.instance.project = project
         super().form_valid(form)

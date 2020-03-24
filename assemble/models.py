@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.utils.text import slugify
 from django.urls import reverse
 from django.db.models.signals import post_save,pre_save,pre_delete,post_delete,m2m_changed
-from simple_history.models import HistoricalRecords
+
 
 """
 Project
@@ -31,7 +31,7 @@ class Project(models.Model):
 
     slug = models.SlugField(max_length=100,unique=True,blank=True,null=True)
     completed= models.BooleanField(default=False)
-    history = HistoricalRecords()
+    
 
 
     def __str__(self):
@@ -64,7 +64,6 @@ class ProjectComponent(models.Model):
     task = models.ForeignKey('self',null=True,default=None,related_name="component",
                              on_delete=models.CASCADE)
     project = models.ForeignKey(Project,on_delete=models.CASCADE)
-    history = HistoricalRecords()
 
     __original_name = None
     __original_status = None
@@ -94,11 +93,12 @@ class ProjectComponent(models.Model):
         """If self.name has been changed(via edit) then created a project history"""
 
         if self.name != self.__original_name:
+            print("Name was edited")
             ProjectHistory.objects.create(before=self.__original_name,after=self.name,project=self.project)
 
-        if self.__original_status != self.completed:
+        elif self.__original_status != self.completed:
             # changed from false to true or true to false
-
+            print("Status was edited")
             ProjectHistory.objects.create(before=f"'{self.name}' changed to {self.completed}.",after="status",project=self.project)
 
         if not self.slug:
@@ -108,6 +108,7 @@ class ProjectComponent(models.Model):
         super().save(*args,**kwargs)
         self.__original_status = self.completed
         self.__original_name = self.name
+        
         
 
     def get_absolute_url(self):
@@ -119,8 +120,6 @@ class Profile(models.Model):
     user = models.OneToOneField(User,on_delete=models.CASCADE)
     slug = models.SlugField(blank=True)
     friends = models.ManyToManyField('Profile',blank=True)
-    history = HistoricalRecords()
-
 
     def __str__(self):
         return self.user.username
@@ -173,7 +172,7 @@ class ProjectHistory(models.Model):
     date_changed = models.DateTimeField(auto_now_add=True)
 
     # might have to change the save method to include the profile
-    user = models.ForeignKey(Profile,on_delete=models.CASCADE,blank=True,null=True)
+    user = models.CharField(max_length=100,null=True,blank=True)
     project = models.ForeignKey(Project,on_delete=models.CASCADE)
     list_string = None
 
