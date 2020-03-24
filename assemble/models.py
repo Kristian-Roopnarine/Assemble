@@ -65,20 +65,12 @@ class ProjectComponent(models.Model):
                              on_delete=models.CASCADE)
     project = models.ForeignKey(Project,on_delete=models.CASCADE)
 
-    __original_name = None
-    __original_status = None
-
     def __str__(self):
         return self.name
 
     def __init__(self,*args,**kwargs):
         """Calls super() which calls the init function of ProjectComponent, then sets __original_name = name."""
         super(ProjectComponent,self).__init__(*args,**kwargs)
-        self.__original_name = self.name
-
-        # this line makes the task_finish_detail view work
-        # before it wasn't registering when completed went from true to false but the tests were working
-        self.__original_status = self.completed
 
     def _get_unique_slug(self):
         slug = slugify(self.name)
@@ -91,23 +83,11 @@ class ProjectComponent(models.Model):
 
     def save(self,*args,**kwargs):
         """If self.name has been changed(via edit) then created a project history"""
-
-        if self.name != self.__original_name:
-            print("Name was edited")
-            ProjectHistory.objects.create(before=self.__original_name,after=self.name,project=self.project)
-
-        elif self.__original_status != self.completed:
-            # changed from false to true or true to false
-            print("Status was edited")
-            ProjectHistory.objects.create(before=f"'{self.name}' changed to {self.completed}.",after="status",project=self.project)
-
         if not self.slug:
             self.slug=self._get_unique_slug()
 
         
         super().save(*args,**kwargs)
-        self.__original_status = self.completed
-        self.__original_name = self.name
         
         
 
@@ -167,10 +147,10 @@ class UserFeedback(models.Model):
 
 class ProjectHistory(models.Model):
     # if the history object is being created then the before field will be empty.
-    before = models.TextField(max_length=100,blank=True,null=True)
-    after  = models.TextField(max_length=100,blank=True,null=True)
+    previous_field = models.CharField(max_length=200,blank=True)
+    updated_field = models.CharField(max_length=200,blank=True)
     date_changed = models.DateTimeField(auto_now_add=True)
-
+    status = models.CharField(max_length=20,null=True)
     # might have to change the save method to include the profile
     user = models.CharField(max_length=100,null=True,blank=True)
     project = models.ForeignKey(Project,on_delete=models.CASCADE)
@@ -179,8 +159,8 @@ class ProjectHistory(models.Model):
     #it works for creating!
     def __init__(self,*args,**kwargs):
         super(ProjectHistory,self).__init__(*args,**kwargs)
-        self.create_history_string()
-
+        
+    
     # maybe add a method to return a string of the fields to display?
     # -- will need name of user
     # -- was it an edit,create or delete
@@ -233,29 +213,16 @@ class ProjectHistory(models.Model):
             "post_add" - sent after one or more objects are added to the relation.
             "pre_remove" - sent ebfore one or more objects are removed from the relation.
     """
-
-    def create_history_string(self):
-        """
-        When a ProjectHistory instance is created, generate a string to be displayed on Assemble based on the action of the component/task.
-        """
-        if self.before == None:
-            self.list_string = f"'{self.after}' was created."
-        elif self.after == 'deleted':
-            # it was deleted
-            self.list_string = f"'{self.before}' was deleted."
-        elif self.after == 'status':
-            # task status was changed
-            self.list_string = self.before
-        else:
-            self.list_string = f"'{self.before}' was edited to '{self.after}'."
-
-
+    # this is getting called twice when creating a component.
+    # the logic is the issue
+    
     def __str__(self):
-        return self.list_string
+        return self.previous_field
+
 
 def pre_delete_project_component_model_reciever(sender,instance,*args,**kwargs):
     """ Detects when a project component is deleted and creates a ProjectHistory instance."""
-    ProjectHistory.objects.create(before=instance.name,after='deleted',project=instance.project)
+    ProjectHistory.objects.create(previous_field=instance.name,status="deleted",project=instance.project)
 
 def post_save_project_component_model_reciever(sender,instance,created,*args,**kwargs):
     """Detects when a project component is created and creates a ProjectHistory instance.
@@ -267,7 +234,7 @@ def post_save_project_component_model_reciever(sender,instance,created,*args,**k
     """
     if created:
         try:
-            ProjectHistory.objects.create(after=instance.name,project=instance.project)
+            ProjectHistory.objects.create(previous_field=instance.name,status="created",project=instance.project)
 
         except:
             pass

@@ -3,8 +3,7 @@ from django.views.generic import ListView
 from django.views.generic.edit import CreateView,UpdateView,DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
-from .models import Project,ProjectComponent,FriendRequest,Profile,\
-    get_list_of_project_component_history_records,join_queryset_of_historical_records,create_strings_from_queryset
+from .models import Project,ProjectComponent,FriendRequest,Profile,ProjectHistory,get_list_of_project_component_history_records,join_queryset_of_historical_records,create_strings_from_queryset
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -413,6 +412,7 @@ def finish_task_detail(request,pk):
     bf = task.completed
     task.completed = not bf
     task.save()
+    ProjectHistory.objects.create(previous_field=task.name,updated_field=task.completed,status="updated",project=task.project)
     #messages.success(request,f"The task '{task}' completed status was changed to {task.completed}.")
     return redirect(task.project)
 
@@ -447,6 +447,7 @@ def edit_component_or_task(request,pk):
         [http response] -- [If get request, returns a response containing a prefilled form. If POST request and the form is saved, user is redirected to project-detail.]
     """
     context={}
+    # get the component id
     component = ProjectComponent.objects.get(id=pk)
     context['component'] = component
     if request.method == "GET":
@@ -454,8 +455,11 @@ def edit_component_or_task(request,pk):
         context['form'] = form
         return render(request,'assemble/edit_component_form.html',context)
     elif request.method == 'POST':
+        # maybe we can create the information here about edited
         form = ComponentEditForm(request.POST,instance=component)
         if form.is_valid():
+            # maybe create the instance here?
+            ProjectHistory.objects.create(previous_field=component.name,updated_field=form.instance.name,status="edited",project=component.project)
             form.save()
             messages.success(request,f"Successfully edited '{component}'")
             return redirect('project-detail',project_slug =component.project.slug)
