@@ -241,7 +241,7 @@ def post_save_project_component_model_reciever(sender,instance,created,*args,**k
 
 # it worked on a project component
 post_save.connect(post_save_project_component_model_reciever,sender=ProjectComponent)
-pre_delete.connect(pre_delete_project_component_model_reciever,sender=ProjectComponent)
+#pre_delete.connect(pre_delete_project_component_model_reciever,sender=ProjectComponent)
 
 def get_list_of_project_component_history_records(project):
     """

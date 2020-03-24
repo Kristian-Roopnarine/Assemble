@@ -412,7 +412,7 @@ def finish_task_detail(request,pk):
     bf = task.completed
     task.completed = not bf
     task.save()
-    ProjectHistory.objects.create(previous_field=task.name,updated_field=task.completed,status="updated",project=task.project)
+    ProjectHistory.objects.create(user=request.user.username,previous_field=task.name,updated_field=task.completed,status="updated",project=task.project)
     #messages.success(request,f"The task '{task}' completed status was changed to {task.completed}.")
     return redirect(task.project)
 
@@ -431,6 +431,7 @@ def delete_task(request,pk):
     task = get_object_or_404(ProjectComponent,id=pk)
     messages.success(request,f"Successfully deleted {task}")
     task.delete()
+    ProjectHistory.objects.create(user=request.user.username,previous_field=task.name,status="deleted",project=task.project)
     return redirect(task.project)
 
 @login_required
@@ -450,6 +451,7 @@ def edit_component_or_task(request,pk):
     # get the component id
     component = ProjectComponent.objects.get(id=pk)
     context['component'] = component
+    previous_name = component.name
     if request.method == "GET":
         form = ComponentEditForm(instance=component)
         context['form'] = form
@@ -459,7 +461,7 @@ def edit_component_or_task(request,pk):
         form = ComponentEditForm(request.POST,instance=component)
         if form.is_valid():
             # maybe create the instance here?
-            ProjectHistory.objects.create(previous_field=component.name,updated_field=form.instance.name,status="edited",project=component.project)
+            ProjectHistory.objects.create(user=request.user.username,previous_field=previous_name,updated_field=form.instance.name,status="edited",project=component.project)
             form.save()
             messages.success(request,f"Successfully edited '{component}'")
             return redirect('project-detail',project_slug =component.project.slug)
