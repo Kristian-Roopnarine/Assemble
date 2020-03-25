@@ -270,9 +270,7 @@ class ProjectEditView(LoginRequiredMixin,UpdateView):
 
 def history_view(request,pk):
     project = Project.objects.get(id=pk)
-    history_records = get_list_of_project_component_history_records(project)
-    sorted_history_queryset = join_queryset_of_historical_records(history_records)
-    render_list = create_strings_from_queryset(sorted_history_queryset)
+    render_list = ProjectHistory.objects.filter(project__id = pk)
     context={
         'project':project,
         'render_list':render_list

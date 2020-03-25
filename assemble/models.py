@@ -156,6 +156,7 @@ class ProjectHistory(models.Model):
     #it works for creating!
     def __init__(self,*args,**kwargs):
         super(ProjectHistory,self).__init__(*args,**kwargs)
+        self.create_history_string()
         
     
     # maybe add a method to return a string of the fields to display?
@@ -214,15 +215,17 @@ class ProjectHistory(models.Model):
     # the logic is the issue
     
     def __str__(self):
-        if self.status == "deleted":
-            return f"{self.previous_field} was {self.status} by {self.user}."
-        elif self.status == "edited":
-            return f"{self.previous_field} was {self.status} to {self.updated_field} by {self.user}."
-        elif self.status == "updated":
-            return f"{self.previous_field} was {self.status} by {self.user}."
-        elif self.status == "created":
-            return f"{self.previous_field} was created by {self.user}."
+        return self.list_string
 
+    def create_history_string(self):
+        if self.status == "deleted":
+            self.list_string= f"{self.previous_field} was {self.status} by {self.user}."
+        elif self.status == "edited":
+            self.list_string= f"{self.previous_field} was {self.status} to {self.updated_field} by {self.user}."
+        elif self.status == "updated":
+            self.list_string= f"{self.previous_field} was {self.status} by {self.user}."
+        elif self.status == "created":
+            self.list_string= f"{self.previous_field} was created by {self.user}."
 
 def pre_delete_project_component_model_reciever(sender,instance,*args,**kwargs):
     """ Detects when a project component is deleted and creates a ProjectHistory instance."""
