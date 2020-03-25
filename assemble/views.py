@@ -124,7 +124,7 @@ class ProjectCreate(LoginRequiredMixin,CreateView):
         [http response] -- [After checking the form for errors, saves it and redirects to a specific page. Either set by success_url or a models get_absolute_url method.]
     """
     form_class = ProjectCreateForm
-    template_name = "assemble/project_form.html"
+    template_name = "assemble/form_templates/create_project_form.html"
     success_url = reverse_lazy('project-list')
 
     # addings key word arguments to this class
@@ -234,7 +234,7 @@ class ProjectEditView(LoginRequiredMixin,UpdateView):
     """
     model = Project
     form_class = ProjectEditForm
-    template_name = 'assemble/project_edit_form.html'
+    template_name = 'assemble/form_templates/project_edit_form.html'
     success_url = reverse_lazy('project-list')
 
     def get_form_kwargs(self):
@@ -295,6 +295,7 @@ class ProjectComponentCreate(LoginRequiredMixin,CreateView):
         [http response] -- [If the form is saved successfully redirects the user to the project-detail.]
     """
     model = ProjectComponent
+    template_name = "assemble/form_templates/create_project_component.html"
     fields = ['name']
 
 
@@ -342,7 +343,7 @@ class ProjectTaskCreate(LoginRequiredMixin,CreateView):
     """
     model = ProjectComponent
     fields = ['name']
-    template_name = "assemble/componenttask_form.html"
+    template_name = "assemble/form_templates/create_to_do_items.html"
 
     def form_valid(self,form):
         """
