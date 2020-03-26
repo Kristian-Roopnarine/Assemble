@@ -7,7 +7,7 @@ from .models import Project,ProjectComponent,FriendRequest,Profile,ProjectHistor
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 
-# django form for creating a user 
+# django form for creating a user
 from .forms import UserCreationForm,ProjectCreateForm,ProjectEditForm,ComponentEditForm,\
     UserFeedbackCreateForm
 from django.contrib.auth.decorators import login_required
@@ -25,10 +25,10 @@ from django.contrib.auth.models import User
 def index(request):
     """
     The home page view which requires a login. If the user is not logged in, they are redirected to the login page.
-    
+
     Arguments:
         request {dictionary} -- [Either GET or POST]
-    
+
     Returns:
         [HttpResponse] -- [Points our view to a template to be rendered with the appropriate request.]
     """
@@ -37,10 +37,10 @@ def index(request):
 # sign up view
 def sign_up(request):
     """The view responsible for handling the sign up template
-    
+
     Arguments:
         request {Http response} -- [GET or POST]
-    
+
     Returns:
         [HttpResponse] -- [In a GET request it loads an empty form. POST requests fill the form with data]
     """
@@ -57,10 +57,10 @@ def sign_up(request):
 
 def log_out(request):
     """The view responsible for logging a user out. Displays a UserFeedback form to the user to optionally fill out.
-    
+
     Arguments:
         request {Http response} -- [GET or POST]
-    
+
     Returns:
         [http response] -- [Either redirects to the home page after a successful POST request or just the regular log out page.]
     """
@@ -86,16 +86,16 @@ class ProjectList(LoginRequiredMixin,ListView):
     """
     A class based view responsible for querying a list of Projects from the database.
     It inherits from LoginRequiredMixin to not allow anonymous users to view the information.
-    
+
     Arguments:
         LoginRequiredMixin {class} -- [requires user to be logged in to view information]
         ListView {class} -- [class that produces the queryset]
-    
+
     Returns:
         [project_list.html] -- [template that renders the list of projects for a user.]
     """
     model = Project
-    
+
     # i think I can turn this into one line
     # I'm using the request data to pull my user instance from it
     # getting the profile with that user instance
@@ -103,7 +103,7 @@ class ProjectList(LoginRequiredMixin,ListView):
     def get_queryset(self):
         """
         Alter the get_queryset method to specify the queryset to return from the view set.
-        
+
         Returns:
             [Project model] -- [Returns a queryset of projects for the user signed in.]
         """
@@ -115,11 +115,11 @@ class ProjectList(LoginRequiredMixin,ListView):
 class ProjectCreate(LoginRequiredMixin,CreateView):
     """
     A class based view that creates a form from our Project ModelForm.
-    
+
     Arguments:
         LoginRequiredMixin {class} -- [requires our user to be logged in to create projects]
         CreateView {class} -- [generates form from specified class]
-    
+
     Returns:
         [http response] -- [After checking the form for errors, saves it and redirects to a specific page. Either set by success_url or a models get_absolute_url method.]
     """
@@ -132,7 +132,7 @@ class ProjectCreate(LoginRequiredMixin,CreateView):
     def get_form_kwargs(self):
         """
         Overide the get_form_kwargs method inherited from CreateView.
-        
+
         Returns:
             [kwargs:key word arguments] -- [Key word arguments to build the model form]
         """
@@ -145,10 +145,10 @@ class ProjectCreate(LoginRequiredMixin,CreateView):
         Overiding the form_valid method inherited from CreateView.
         I had to over ride the default method because we are saving many-to-many-relationships in this model.
         According to Django documentation, to save m2m relationships the data needs to be saved FIRST, then relationships can be added.
-        
+
         Arguments:
             form {form} -- [The form being passed into the function.]
-        
+
         Returns:
             [http response] -- [If the form has no errors, redirects to another page.]
         """
@@ -159,18 +159,19 @@ class ProjectCreate(LoginRequiredMixin,CreateView):
         # needs to return a HttpResponse Object
         # before it returned super().form_valid(form)
         # however when using a m2m relationship, the object needs to be saved FIRST, then relationships can be made.
-        messages.success(self.request,f"Created {form.instance.name}")
+
+        #messages.success(self.request,f"Created {form.instance.name}")
         return redirect('project-list')
 
 @login_required
 def project_detail_view(request,project_slug):
     """
     The view for displaying the components of a specific project.
-    
+
     Arguments:
         request {dictionary} -- [GET or POST]
         project_slug {slugfield} -- [The project's slug field passed in from anchor tags in the project-list template.]
-    
+
     Returns:
         [http response] -- [Displays that project to the user with all the active components.]
     """
@@ -203,11 +204,11 @@ def project_detail_view(request,project_slug):
 def delete_project(request,pk):
     """
     View responsible for deleting a project from the project-list template.
-    
+
     Arguments:
         request {dictionary} -- [GET or POST]
         id {primary key} -- [Primary key of the project to be deleted.]
-    
+
     Returns:
         [http response] -- [response that redirects to the project-list]
     """
@@ -223,12 +224,12 @@ def delete_project(request,pk):
 
 class ProjectEditView(LoginRequiredMixin,UpdateView):
     """
-    Class based view used to generate an update form for projects. 
-    
+    Class based view used to generate an update form for projects.
+
     Arguments:
         LoginRequiredMixin {class} -- [Inherit from this class to prevent anonymous users from accessing information.]
         UpdateView {class} -- [class to create the update form from the Project model class]
-    
+
     Returns:
         [http response] -- [if form is successfully saved then the user is redirected to the project-list view.]
     """
@@ -240,7 +241,7 @@ class ProjectEditView(LoginRequiredMixin,UpdateView):
     def get_form_kwargs(self):
         """
         Overriding the default get_form_kwargs to add the user editing the form.
-        
+
         Returns:
             [key word arguments] -- [dictionary containing information for the form]
         """
@@ -252,10 +253,10 @@ class ProjectEditView(LoginRequiredMixin,UpdateView):
     def form_valid(self, form):
         """
         Overriding default form_valid method. This is to ensure that the user editing the form is still saved as a user in the Project.
-        
+
         Arguments:
             form {form} -- [The ProjectUpdateForm.]
-        
+
         Returns:
             [http response] -- [returns the user to the project-list view if the form is successfully saved.]
         """
@@ -286,11 +287,11 @@ def history_view(request,pk):
 class ProjectComponentCreate(LoginRequiredMixin,CreateView):
     """
     Class based view responsible for creating project components.
-    
+
     Arguments:
         LoginRequiredMixin {class} -- [Class that requires our user to login to add components.]
         CreateView {class} -- [Class that creates a form from ProjectComponent ModelForm]
-    
+
     Returns:
         [http response] -- [If the form is saved successfully redirects the user to the project-detail.]
     """
@@ -305,7 +306,7 @@ class ProjectComponentCreate(LoginRequiredMixin,CreateView):
 
         Arguments:
             form {form} -- [ProjectComponentCreate form]
-        
+
         Returns:
             [http response] -- [redirects the user to the project-detail page if successful.]
         """
@@ -317,11 +318,11 @@ class ProjectComponentCreate(LoginRequiredMixin,CreateView):
 
         # this takes the models get_absolute_url and redirects to the URL
         return redirect(project)
-    
+
     def get_context_data(self,**kwargs):
         """
         Over ride the get_context_data method. We pass in the parent project to display that information in our form.
-        
+
         Returns:
             [dictionary] -- [key values pairs of information to present in the template]
         """
@@ -333,11 +334,11 @@ class ProjectComponentCreate(LoginRequiredMixin,CreateView):
 class ProjectTaskCreate(LoginRequiredMixin,CreateView):
     """
     A class based view to create a form to create child tasks to parent components.
-    
+
     Arguments:
         LoginRequiredMixin {[class]} -- [Requires our users to be logged in.]
         CreateView {[class]} -- [Creates the form]
-    
+
     Returns:
         [http response] -- [if successful, will redirect user to project-detail view.]
     """
@@ -348,10 +349,10 @@ class ProjectTaskCreate(LoginRequiredMixin,CreateView):
     def form_valid(self,form):
         """
         Overriding the default form_valid method to save relationships. Adds the relationship of parent component to the child task. Adds the task as a child to the project. The form opens up as a modal in the project-detail view.
-        
+
         Arguments:
             form {form} -- [ProjectTaskCreate form created from form in forms.py.]
-        
+
         Returns:
             [http response] -- [if successful redirects the user to the project-detail.]
         """
@@ -362,11 +363,11 @@ class ProjectTaskCreate(LoginRequiredMixin,CreateView):
         ProjectHistory.objects.create(user=self.request.user.username,previous_field=form.instance.name,status="created",project=form.instance.project)
         messages.success(self.request,f"Added '{form.instance.name}' to '{form.instance.task}'")
         return redirect('project-detail',project_slug=component.project.slug)
-    
+
     def get_context_data(self,**kwargs):
         """
         Queries the DB for information about the project component to pass into the form.
-        
+
         Returns:
             [dictionary] -- [key values pairs of information to display in the componenttask_form.html.]
         """
@@ -402,11 +403,11 @@ def component_task_detail(request,project_component_slug,component_task_slug):
 def finish_task_detail(request,pk):
     """
     Changes the completed field of a task to the opposite.
-    
+
     Arguments:
         request {[http response]} -- [GET or POST]
         pk {[int]} -- [Primary key of the task]
-    
+
     Returns:
         [http response] -- [redirects the user to project-detail.]
     """
@@ -422,16 +423,16 @@ def finish_task_detail(request,pk):
 def delete_task(request,pk):
     """
     View responsible for deleting a task.
-    
+
     Arguments:
         request {[http response]} -- [GET or POST]
         pk {[int]} -- [primary key of the task being deleted.]
-    
+
     Returns:
         [type] -- [description]
     """
     task = get_object_or_404(ProjectComponent,id=pk)
-    messages.success(request,f"Successfully deleted {task}")
+    #messages.success(request,f"Successfully deleted {task}")
     task.delete()
     ProjectHistory.objects.create(user=request.user.username,previous_field=task.name,status="deleted",project=task.project)
     return redirect(task.project)
@@ -441,11 +442,11 @@ def delete_task(request,pk):
 def edit_component_or_task(request,pk):
     """
     View responsible for editing a component or task.
-    
+
     Arguments:
         request {[http response]} -- [GET or POST request]
         pk {[int]} -- [Primary key of the object being edited]
-    
+
     Returns:
         [http response] -- [If get request, returns a response containing a prefilled form. If POST request and the form is saved, user is redirected to project-detail.]
     """
@@ -476,10 +477,10 @@ def edit_component_or_task(request,pk):
 def profile(request):
     """
     Loads the user profile containing current projects, friends and friend requests.
-    
+
     Arguments:
         request {[http response]} -- [GET or POST request]
-    
+
     Returns:
         [dictionary] -- [key values pairs that determine the information displayed in the template profile.html]
     """
@@ -493,7 +494,7 @@ def profile(request):
         'current_projects':current_projects,
         'profile':is_me,
         'friend_requests':friend_requests,
-        
+
     }
     return render(request,'assemble/profile.html',context)
 
@@ -501,11 +502,11 @@ def profile(request):
 def profile_view(request,slug):
     """
     View responsible for loading another user's profile after searching.
-    
+
     Arguments:
         request {[http response]} -- [GET or POST request]
         slug {[slugfield]} -- [The slug of the user being searched for. Maybe use id instead?]
-    
+
     Returns:
         [dictionary] -- [dictionary containing details about whether or not you're friend with the user or whether you already sent them a friend request.]
     """
@@ -542,10 +543,10 @@ def profile_view(request,slug):
 def search_user(request):
     """
     View responsible for presenting user's from the search form.
-    
+
     Arguments:
         request {[http response]} -- [GET or POST]
-    
+
     Returns:
         [http response] -- [If the user that was searched is you, redirects to your profile. Otherwise it returns the user being searched.]
     """
@@ -565,11 +566,11 @@ def search_user(request):
 def send_friend_request(request,sent_to):
     """
     View responsible for creating a FriendRequest object.
-    
+
     Arguments:
         request {[http response]} -- [GET or POST]
         sent_to {[user]} -- [The profile where you sent the friend request to. ]
-    
+
     Returns:
         [http response] -- [redirects user to the sent_to user's profile with updated buttons.]
     """
@@ -589,11 +590,11 @@ def send_friend_request(request,sent_to):
 def accept_friend_request(request,from_user):
     """
     View responsible for accepting friend requests from the user profile.
-    
+
     Arguments:
         request {[http response]} -- [get or post]
         from_user {[user]} -- [The profile of the person who sent the friend request.]
-    
+
     Returns:
         [http response] -- [If the request is successful it redirects to deleting the friend request.]
     """
@@ -602,7 +603,7 @@ def accept_friend_request(request,from_user):
 
     #get me from the db
     is_me = Profile.objects.get(user__username=request.user.username)
-    
+
     # add from_user to your friend list
     is_me.friends.add(user)
     # add your profile to their friend list
@@ -620,11 +621,11 @@ def accept_friend_request(request,from_user):
 def delete_friend_request(request,pk):
     """
     View responsible for deleting friend requests from the user profile.
-    
+
     Arguments:
         request {[http response]} -- [get or post]
         from_user {[user]} -- [The profile of the person who sent the friend request.]
-    
+
     Returns:
         [http response] -- [If the request is successful it redirects to the users profile.]
     """
@@ -661,7 +662,3 @@ def edit_project(request,id):
             messages.success(request,f"Edited the project '{project.name}'.")
             return redirect('project-list')
 """
-
-
-
-

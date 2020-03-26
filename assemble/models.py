@@ -31,7 +31,7 @@ class Project(models.Model):
 
     slug = models.SlugField(max_length=100,unique=True,blank=True,null=True)
     completed= models.BooleanField(default=False)
-    
+
 
 
     def __str__(self):
@@ -68,9 +68,6 @@ class ProjectComponent(models.Model):
     def __str__(self):
         return self.name
 
-    def __init__(self,*args,**kwargs):
-        """Calls super() which calls the init function of ProjectComponent, then sets __original_name = name."""
-        super(ProjectComponent,self).__init__(*args,**kwargs)
 
     def _get_unique_slug(self):
         slug = slugify(self.name)
@@ -85,8 +82,8 @@ class ProjectComponent(models.Model):
         if not self.slug:
             self.slug=self._get_unique_slug()
         super().save(*args,**kwargs)
-        
-        
+
+
 
     def get_absolute_url(self):
         return reverse('project-detail',kwargs={'project_slug':self.project.slug})
@@ -157,8 +154,8 @@ class ProjectHistory(models.Model):
     def __init__(self,*args,**kwargs):
         super(ProjectHistory,self).__init__(*args,**kwargs)
         self.create_history_string()
-        
-    
+
+
     # maybe add a method to return a string of the fields to display?
     # -- will need name of user
     # -- was it an edit,create or delete
@@ -213,7 +210,7 @@ class ProjectHistory(models.Model):
     """
     # this is getting called twice when creating a component.
     # the logic is the issue
-    
+
     def __str__(self):
         return self.list_string
 
