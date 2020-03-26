@@ -457,7 +457,7 @@ def edit_component_or_task(request,pk):
     if request.method == "GET":
         form = ComponentEditForm(instance=component)
         context['form'] = form
-        return render(request,'assemble/edit_component_form.html',context)
+        return render(request,'assemble/form_templates/edit_component_form.html',context)
     elif request.method == 'POST':
         # maybe we can create the information here about edited
         form = ComponentEditForm(request.POST,instance=component)
@@ -487,15 +487,11 @@ def profile(request):
     # I think I can query this from my profile instance
     current_projects = Project.objects.filter(user=is_me)
 
-    # I'm querying this twice
-    # TODO: remove this line
-    profile = Profile.objects.get(user__username=request.user)
-
     #queryset containing all friend request objects
     friend_requests = FriendRequest.objects.filter(Q(to_user__username=request.user.username) | Q(from_user__username=request.user.username))
     context={
         'current_projects':current_projects,
-        'profile':profile,
+        'profile':is_me,
         'friend_requests':friend_requests,
         
     }

@@ -1,4 +1,4 @@
-{% extends 'assemble/base_scroll.html' %}
+{% extends 'assemble/base.html' %}
 {% load crispy_forms_tags %}
 
 
@@ -16,8 +16,9 @@
     <div class="row text-center flex-nowrap">
         <div class="col-md-2">
             <a class="btn btn-info btn-sm text-white mb-2" href="{% url 'project-component-create' project.slug %}"><i class="fa fa-sitemap"></i> Create Smaller Projects</a>
-            <a class="btn btn-warning btn-sm text-white" href="{% url 'project-history' project.id%}"><i class="fa fa-history"></i> View Project History</a>
+            <a class="btn btn-warning btn-sm text-white" href="{% url 'project-history' project.id %}"><i class="fa fa-history"></i> View Project History</a>
         </div>
+
         {% for component in project_components %}
             <div class="col-md-3 mb-2">
                 <div class="card text-white" >
@@ -54,10 +55,13 @@
 
                             {# this renders one modal form for each component#}
                             {# might not be the most efficient way to do this #}
-                            <button class="btn btn-info btn-sm text-white mb-2" data-toggle="modal" data-target="#component-{{component.slug}}">
+                                                     
+                        </ul>  
+                        <div class="card-footer">
+                            <button class="btn btn-info btn-sm text-white mb-2 btn-block" data-toggle="modal" data-target="#component-{{component.slug}}">
                                 <i class="fa fa-tasks"></i> Create To do items
-                            </button>                            
-                        </ul>                     
+                            </button>   
+                        </div>                   
                     </div>
                 </div>
             </div>

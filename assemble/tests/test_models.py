@@ -4,7 +4,8 @@ from assemble.models import *
 from django.db import IntegrityError
 from django.core.exceptions import ObjectDoesNotExist
 import datetime as dt
-
+from django.test import Client
+from assemble.forms import *
 # Create your tests here.
 class UserProfileTestCase(TestCase):
 
@@ -153,5 +154,11 @@ class ProjectHistoryTestCase(TestCase):
         #id=2
         #project history id=2 for this instance created
         ProjectComponent.objects.create(name="test task",task=comp1,project=test_project)
+
+class ProjectCreateFormTest(TestCase):
+
+    def setUp(self):
+        User.objects.create(username="bob")
+        User.objects.create(username="bob1")
 
         
