@@ -207,6 +207,7 @@ class TestProjectComponentTaskViews(TestCase):
         self.project_component_create_url = reverse('project-component-create', kwargs = {'project_slug':self.test_project.slug})
         self.project_component_delete_url = reverse('delete-task',args=[1])
         self.project_task_finish_url = reverse('finish-task',kwargs={'pk':1})
+        self.component_edit_url = reverse('edit-details',kwargs={'pk':1})
 
     def test_project_delete_component_POST(self):
         request = self.factory.post(self.project_component_delete_url)
@@ -225,4 +226,97 @@ class TestProjectComponentTaskViews(TestCase):
         self.assertEquals(component.completed,True)
 
     def test_edit_component_GET(self):
-        pass
+        request = self.factory.get(self.component_edit_url)
+        request.user = self.bob.user
+        response = edit_component_or_task(request,1)
+        self.assertEqual(response.status_code,200)
+        form = ComponentEditForm(instance=self.test_project)
+        self.assertEqual(form.instance.name,self.test_project.name)
+
+    def test_edit_component_POST(self):
+        request = self.factory.post(self.component_edit_url,{
+            'name':'this name was changed'
+        })
+        request.user = self.bob.user
+        response = edit_component_or_task(request,1)
+        self.assertEqual(response.status_code,302)
+        edited_component = ProjectComponent.objects.get(id=1)
+        self.assertEqual(edited_component.name,'this name was changed')
+        total_components = ProjectComponent.objects.all().count()
+        self.assertEqual(total_components,1)
+
+class TestUserInteractionViews(TestCase):
+
+    def setUp(self):
+        self.client = Client()
+        self.factory = RequestFactory()
+        User.objects.create(username="bob")
+        self.bob = Profile.objects.get(id=1)
+        User.objects.create(username="bob2")
+        self.bob2 = Profile.objects.get(id=2)
+
+        self.profile_url = reverse('profile')
+        self.profile_view_url = reverse('profile-view',args=[self.bob2.slug])
+        self.search_user_url = reverse('search-user')
+        self.send_friend_request_url = reverse('send-friend-request',args=[self.bob2.slug])
+        self.accept_friend_request_url = reverse('accept-friend-request',args=[self.bob.slug])
+        self.delete_friend_request_url = reverse('delete-friend-request',args=[1])
+
+    def test_self_profile_(self):
+        request = self.factory.get(self.profile_url)
+        request.user = self.bob.user
+        response = profile(request)
+        self.assertEqual(response.status_code,200)
+
+    def test_profile_view(self):
+        request = self.factory.get(self.profile_view_url)
+        request.user = self.bob.user
+        response = profile_view(request,self.bob2.slug)
+        self.assertEqual(response.status_code,200)
+    """
+    def test_search_user_GET(self):
+        request = self.factory.get(self.search_user_url)
+        request.user = self.bob.user
+        response = search_user(request)
+        self.assertEqual(response.status_code,200)
+    """
+    def test_search_user_POST_valid_data(self):
+        request = self.factory.post(self.search_user_url,{
+            'username':'bob2',
+        })
+        request.user = self.bob.user
+        response = search_user(request)
+        self.assertEqual(response.status_code,200)
+
+    def test_send_friend_request(self):
+        request = self.factory.get(self.send_friend_request_url)
+        request.user = self.bob.user
+        response = send_friend_request(request,self.bob2.slug)
+        self.assertEqual(response.status_code,302)
+        fr = FriendRequest.objects.all().count()
+        self.assertEqual(fr,1)
+
+    def test_accept_and_delete_friend_request(self):
+        request = self.factory.get(self.send_friend_request_url)
+        request.user=self.bob.user
+        response = send_friend_request(request,self.bob2.slug)
+
+        request = self.factory.get(self.accept_friend_request_url)
+        request.user=self.bob2.user
+        accept_response = accept_friend_request(request,self.bob.slug)
+        self.assertEqual(accept_response.status_code,302)
+
+        bob1 = Profile.objects.get(id=1)
+        bob2 = Profile.objects.get(id=2)
+        self.assertIn(bob2,bob1.friends.all())
+        self.assertIn(bob1,bob2.friends.all())
+
+        request = self.factory.get(self.delete_friend_request_url)
+        request.user = self.bob2.user
+        response = delete_friend_request(request,1)
+        self.assertEqual(response.status_code,302)
+        fr = FriendRequest.objects.all().count()
+        self.assertEqual(fr,0)
+
+
+    # TODO: add tests for projecthistory!

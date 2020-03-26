@@ -466,7 +466,7 @@ def edit_component_or_task(request,pk):
             # maybe create the instance here?
             ProjectHistory.objects.create(user=request.user.username,previous_field=previous_name,updated_field=form.instance.name,status="edited",project=component.project)
             form.save()
-            messages.success(request,f"Successfully edited '{component}'")
+            #messages.success(request,f"Successfully edited '{component}'")
             return redirect('project-detail',project_slug =component.project.slug)
 
 
@@ -583,7 +583,7 @@ def send_friend_request(request,sent_to):
         to_user=user.user,
         from_user=request.user,
     )
-    messages.success(request,f"Friend request succesfully sent to {user}")
+    #messages.success(request,f"Friend request succesfully sent to {user}")
     return redirect('profile-view',slug=user.slug)
 
 @login_required
@@ -614,7 +614,7 @@ def accept_friend_request(request,from_user):
     is_me.save()
     user.save()
     # if succesful redirect to delete request
-    messages.success(request,f"You and {user} are now friends! You can work on projects together.")
+    #messages.success(request,f"You and {user} are now friends! You can work on projects together.")
     return redirect('delete-friend-request',frequest.id)
 
 @login_required
