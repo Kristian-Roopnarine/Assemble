@@ -13,6 +13,6 @@
   <li> Activate the virtual environment </li>
   <li> change directory into project_clone </li>
   <li> pip install -r requirements.txt </li>
-  <li> Check if everything is running properly by running : python manage.py test assemble/tests </li>
+  <li> Run unit tests to make sure everything is installed : python manage.py test assemble/tests </li>
   <li> python manage.py runserver </li>
   <li> Assemble should be open on port:8000 </li>
