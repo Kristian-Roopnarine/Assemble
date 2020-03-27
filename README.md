@@ -5,7 +5,7 @@
 <h3> How to get Assemble running</h3>
 <ul>
   <li> Create a directory with this structure
-    project
+    <p>project</p>
       -project_clone --> clone into this folder.
   </li>
   <li> Clone the repo into project_clone </li>
