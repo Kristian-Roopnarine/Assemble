@@ -271,7 +271,7 @@ class ProjectEditView(LoginRequiredMixin,UpdateView):
 
 def history_view(request,pk):
     project = Project.objects.get(id=pk)
-    render_list = ProjectHistory.objects.filter(project__id = pk)
+    render_list = ProjectHistory.objects.filter(project__id = pk).order_by('-date_changed')
     context={
         'project':project,
         'render_list':render_list

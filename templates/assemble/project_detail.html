@@ -27,7 +27,7 @@
                         <a href="{% url 'delete-task' component.id %}"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a>
                     </div>
                     <div class="list-group">
-                        <ul class="list-group px-3" style="overflow-y:scroll;max-height:500px;">
+                        <ul class="list-group px-3" style="overflow-y:scroll;max-height:400px;">
                             {% for task in component.component.all %}
                                 {% if task.completed == True %}
                                     <li class="list-group-item d-flex justify-content-between align-items-center border mb-2 rounded-0 list-group-item-success">
@@ -38,7 +38,7 @@
                                             <a href="{% url 'delete-task' task.id %}"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a>
                                         </span>
                                     </li>
-                                    
+
                                 {% else %}
                                     <li class="list-group-item d-flex justify-content-between align-items-center border mb-2 rounded-0 list-group-item-danger">
                                         {{task.name}}
@@ -50,25 +50,25 @@
                                     </li>
                                 {% endif %}
                             {% endfor %}
-                            
+
                             {#<a class="btn btn-info btn-sm text-white mb-2" href="{% url 'create-task' component.slug %}"><i class="fa fa-plus"></i> Create To do items</a>#}
 
                             {# this renders one modal form for each component#}
                             {# might not be the most efficient way to do this #}
-                                                     
-                        </ul>  
+
+                        </ul>
                         <div class="card-footer">
                             <button class="btn btn-info btn-sm text-white mb-2 btn-block" data-toggle="modal" data-target="#component-{{component.slug}}">
                                 <i class="fa fa-tasks"></i> Create To do items
-                            </button>   
-                        </div>                   
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
             {% include 'assemble/form_templates/modal_task_form.html' %}
         {% endfor %}
     </div>
-    
+
 
 
 {% endblock content %}

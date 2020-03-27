@@ -16,11 +16,9 @@
                 {% for record in render_list %}
                     <li class="list-group-item list-group-item-light text-dark d-flex justify-content-between align-items-center">
                         {{ record.list_string }}
-                        {% comment %}
-                        <span class="badge badge-primary">
-                            {{record.1}}
+                        <span class="badge badge-dark">
+                            <strong>{{record.date_changed}}</strong>
                         </span>
-                        {% endcomment %}
                     </li>
                 {% endfor %}
             {% endif %}
