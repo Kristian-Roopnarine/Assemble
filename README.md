@@ -6,7 +6,7 @@
 <ul>
   <li> Create a directory with this structure
     <p>project</p>
-      -project_clone --> clone into this folder.
+      --project_clone --> clone into this folder.
   </li>
   <li> Clone the repo into project_clone </li>
   <li> Create a virutal environment using virtualenv in the root directory </li>
