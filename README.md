@@ -4,9 +4,13 @@
 
 <h3> How to get Assemble running</h3>
 <ul>
-  <li> Clone the repo </li>
-  <li> Create a virutal environment using virtualenv </li>
+  <li> Create a directory with this structure
+    project
+      -project_clone --> clone into this folder.
+  <li> Clone the repo into project_clone </li>
+  <li> Create a virutal environment using virtualenv in the root directory </li>
   <li> Activate the virtual environment </li>
+  <li> change directory into project_clone </li>
   <li> pip install -r requirements.txt </li>
   <li> Check if everything is running properly by running : python manage.py test assemble/tests </li>
   <li> python manage.py runserver </li>
