@@ -415,7 +415,10 @@ def finish_task_detail(request,pk):
     bf = task.completed
     task.completed = not bf
     task.save()
-    ProjectHistory.objects.create(user=request.user.username,previous_field=task.name,updated_field=task.completed,status="updated",project=task.project)
+    if task.completed == True:
+        ProjectHistory.objects.create(user=request.user.username,previous_field=task.name,updated_field=task.completed,status="updated to true",project=task.project)
+    else:
+        ProjectHistory.objects.create(user=request.user.username,previous_field=task.name,updated_field=task.completed,status="updated to false",project=task.project)
     #messages.success(request,f"The task '{task}' completed status was changed to {task.completed}.")
     return redirect(task.project)
 

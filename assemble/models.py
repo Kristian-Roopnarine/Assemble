@@ -219,8 +219,10 @@ class ProjectHistory(models.Model):
             self.list_string= f"{self.previous_field} was {self.status} by {self.user}."
         elif self.status == "edited":
             self.list_string= f"{self.previous_field} was {self.status} to {self.updated_field} by {self.user}."
-        elif self.status == "updated":
-            self.list_string= f"{self.previous_field} was {self.status} by {self.user}."
+        elif self.status == "updated to true":
+            self.list_string = f"{self.previous_field} was updated to complete by {self.user}."
+        elif self.status == "updated to false":
+            self.list_string = f"{self.previous_field} was updated to uncompleted by {self.user}."
         elif self.status == "created":
             self.list_string= f"{self.previous_field} was created by {self.user}."
 
