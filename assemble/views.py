@@ -160,7 +160,7 @@ class ProjectCreate(LoginRequiredMixin,CreateView):
         # before it returned super().form_valid(form)
         # however when using a m2m relationship, the object needs to be saved FIRST, then relationships can be made.
 
-        #messages.success(self.request,f"Created {form.instance.name}")
+        messages.success(self.request,f"Created {form.instance.name}")
         return redirect('project-list')
 
 @login_required
@@ -419,7 +419,7 @@ def finish_task_detail(request,pk):
         ProjectHistory.objects.create(user=request.user.username,previous_field=task.name,updated_field=task.completed,status="updated to true",project=task.project)
     else:
         ProjectHistory.objects.create(user=request.user.username,previous_field=task.name,updated_field=task.completed,status="updated to false",project=task.project)
-    #messages.success(request,f"The task '{task}' completed status was changed to {task.completed}.")
+    messages.success(request,f"The task '{task}' completed status was changed to {task.completed}.")
     return redirect(task.project)
 
 @login_required
@@ -435,7 +435,7 @@ def delete_task(request,pk):
         [type] -- [description]
     """
     task = get_object_or_404(ProjectComponent,id=pk)
-    #messages.success(request,f"Successfully deleted {task}")
+    messages.success(request,f"Successfully deleted {task}")
     task.delete()
     ProjectHistory.objects.create(user=request.user.username,previous_field=task.name,status="deleted",project=task.project)
     return redirect(task.project)
@@ -469,7 +469,7 @@ def edit_component_or_task(request,pk):
             # maybe create the instance here?
             ProjectHistory.objects.create(user=request.user.username,previous_field=previous_name,updated_field=form.instance.name,status="edited",project=component.project)
             form.save()
-            #messages.success(request,f"Successfully edited '{component}'")
+            messages.success(request,f"Successfully edited '{component}'")
             return redirect('project-detail',project_slug =component.project.slug)
 
 
@@ -586,7 +586,7 @@ def send_friend_request(request,sent_to):
         to_user=user.user,
         from_user=request.user,
     )
-    #messages.success(request,f"Friend request succesfully sent to {user}")
+    messages.success(request,f"Friend request succesfully sent to {user}")
     return redirect('profile-view',slug=user.slug)
 
 @login_required
@@ -617,7 +617,7 @@ def accept_friend_request(request,from_user):
     is_me.save()
     user.save()
     # if succesful redirect to delete request
-    #messages.success(request,f"You and {user} are now friends! You can work on projects together.")
+    messages.success(request,f"You and {user} are now friends! You can work on projects together.")
     return redirect('delete-friend-request',frequest.id)
 
 @login_required
