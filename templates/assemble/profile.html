@@ -1,10 +1,10 @@
-{% extends "assemble/base.html "%}
+{% extends "assemble/base.html" %}
 
 {% block content %}
 <h2 class="my-2 text-center">Welcome to your profile {{user.username}}</h2>
 <div class="row justify-content-center">
     <div class="col-sm-3">
-        
+
             <ul class="list-group">
                 <li class="list-group-item list-group-item-success text-dark">
                     <i class="fa fa-book"></i> Your Current Projects:
@@ -13,7 +13,7 @@
                 <li class="list-group-item d-flex justify-content-between align-items-center border rounded-0 list-group-item-light">{{project}}</li>
             {% endfor %}
             </ul>
-    
+
     </div>
     <div class="col-sm-3">
         <div class="card">
@@ -45,7 +45,7 @@
                             <a class="btn btn-success btn-sm mr-1" href="{% url 'accept-friend-request' requests.from_user.username %}">Accept</a>
                             <a class="btn btn-danger btn-sm" href="{% url 'delete-friend-request' requests.id %}">Decline</a>
                         </li>
-                        
+
                     {% else %}
                         <li class="list-group-item d-flex justify-content-between align-items-center border rounded-0 list-group-item">
                             Request to {{requests.to_user}} pending.
