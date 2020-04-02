@@ -26,8 +26,40 @@
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+    <script type="text/javascript">
+    
+      // function to add or remove class from tags
+      function changeTaskStatus(item,completed,uncompleted){
+        var taskCompleted = $(item).hasClass(completed);
+        if (taskCompleted){
+            $(item).removeClass(completed)
+            $(item).addClass(uncompleted)
+        } else {
+            $(item).removeClass(uncompleted)
+            $(item).addClass(completed)
+      }
+
+
+      $('.ajax-test').click(function(){
+        var id;
+        id = $(this).attr("id");
+        $.ajax({
+          type:"GET",
+          // can abstract this into the id of the anchor tags and pull from there instead of hardcoding into django templates
+          url:"{% url 'ajax-test' %}",
+          data:{
+            pk:id,
+          },
+          success:function(data){
+            changeTaskStatus(`#task-${id}`,"list-group-item-success","list-group-item-danger")
+            };
+        }})
+      });
+    </script>
+
 </body>
 </html>

@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path,re_path
 from django.contrib.auth import views as auth_views
 from .views import (
     sign_up,index,
@@ -22,21 +22,22 @@ from .views import (
     edit_component_or_task,
     ProjectEditView,
     log_out,
-    history_view
-    
+    history_view,
+    finish_task_ajax
     )
 
 # think of consistent URL patterns, mine are all over the place!
 
 urlpatterns = [
+
     path('',index,name='home'),
-    
+
     ############################################
     ### USER AUTH VIEWS
     ############################################
     path('accounts/sign-up',sign_up,name='sign-up'),
     path('logout',log_out,name='logged_out'),
-    
+
 
     ############################################
     ### PROJECT URLS
@@ -62,11 +63,12 @@ urlpatterns = [
     path('project-list/project-detail/edit-details/<pk>/',edit_component_or_task,name="edit-details"),
 
     path('finish-task/<pk>/',finish_task_detail,name="finish-task"),
-    
+    path('ajax/finish-task-test/',finish_task_ajax,name="ajax-test"),
+
     path('delete-task/<pk>/',delete_task,name="delete-task"),
 
     #path('project-component-detail/<project_component_slug>/<component_task_slug>/',component_task_detail,name="component-task-detail"),
-    
+
 
     ############################################
     ### USER PROFILE AND INTERACTION URLS
@@ -78,6 +80,5 @@ urlpatterns = [
     path('search/send-friend-request/<sent_to>/',send_friend_request,name="send-friend-request"),
     path('profile/accept-friend-request/<from_user>/',accept_friend_request,name='accept-friend-request'),
     path('profile/delete-friend-request/<pk>/',delete_friend_request,name="delete-friend-request"),
-      
-]
 
+]

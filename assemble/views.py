@@ -6,6 +6,7 @@ from django.urls import reverse_lazy
 from .models import Project,ProjectComponent,FriendRequest,Profile,ProjectHistory,get_list_of_project_component_history_records,join_queryset_of_historical_records,create_strings_from_queryset
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponse
 
 # django form for creating a user
 from .forms import UserCreationForm,ProjectCreateForm,ProjectEditForm,ComponentEditForm,\
@@ -411,16 +412,32 @@ def finish_task_detail(request,pk):
     Returns:
         [http response] -- [redirects the user to project-detail.]
     """
-    task = get_object_or_404(ProjectComponent,id=pk)
-    bf = task.completed
-    task.completed = not bf
-    task.save()
-    if task.completed == True:
-        ProjectHistory.objects.create(user=request.user.username,previous_field=task.name,updated_field=task.completed,status="updated to true",project=task.project)
-    else:
-        ProjectHistory.objects.create(user=request.user.username,previous_field=task.name,updated_field=task.completed,status="updated to false",project=task.project)
-    messages.success(request,f"The task '{task}' completed status was changed to {task.completed}.")
-    return redirect(task.project)
+    if request.method == 'GET':
+        task = get_object_or_404(ProjectComponent,id=pk)
+        bf = task.completed
+        task.completed = not bf
+        task.save()
+        if task.completed == True:
+            ProjectHistory.objects.create(user=request.user.username,previous_field=task.name,updated_field=task.completed,status="updated to true",project=task.project)
+        else:
+            ProjectHistory.objects.create(user=request.user.username,previous_field=task.name,updated_field=task.completed,status="updated to false",project=task.project)
+        messages.success(request,f"The task '{task}' completed status was changed to {task.completed}.")
+        return redirect(task.project)
+
+@login_required
+def finish_task_ajax(request):
+    if request.method == 'GET':
+        pk = request.GET.get('pk')
+        task = ProjectComponent.objects.get(id=pk)
+        bf = task.completed
+        task.completed = not bf
+        task.save()
+        # maybe turn this into a function?
+        if task.completed == True:
+            ProjectHistory.objects.create(user=request.user.username,previous_field=task.name,updated_field=task.completed,status="updated to true",project=task.project)
+        else:
+            ProjectHistory.objects.create(user=request.user.username,previous_field=task.name,updated_field=task.completed,status="updated to false",project=task.project)
+        return HttpResponse('success')
 
 @login_required
 def delete_task(request,pk):

@@ -165,7 +165,7 @@ class TestProjectViews(TestCase):
         response = delete_project(request,1)
         total_project = Project.objects.all().count()
         self.assertEqual(response.status_code,302)
-        self.assertEqual(response.url,'/home/project-list/')
+        self.assertEqual(response.url,'/project-list/')
         self.assertEquals(total_project,1)
 
     def test_history_view(self):
