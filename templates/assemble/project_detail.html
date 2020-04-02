@@ -8,9 +8,6 @@
 <div class="container text-center my-3">
     <h1>{{ project.name }}</h1>
     <h4>{{project.description}}</h4>
-    <div class="progress">
-        <div class="progress-bar progress-bar-striped bg-info" role="progressbar" style="width:{{percent_finished}}%;" aria-valuenow="{{percent_finished}}" aria-valuemin="0" aria-valuemax="100">{{percent_finished}}% Completed</div>
-    </div>
 </div>
 
     <div class="row text-center flex-nowrap">
@@ -33,8 +30,7 @@
                                     <li id="task-{{task.id}}"class="list-group-item d-flex justify-content-between align-items-center border mb-2 rounded-0 list-group-item-success">
                                         {{task.name}}
                                         <span class="badge">
-                                            <a class="ajax-test" id="{{task.id}}" style="color:blue;"><span style="font-size:1rem;"><i class="fa fa-check"></i></span></a>
-                                            <a href="{% url 'finish-task' task.id %}"><span style="color:green;font-size:1rem;"><i class="fa fa-check"></i></span></a>
+                                            <a class="ajax-test" id="{{task.id}}"><span style="color:green;font-size:1rem;"><i class="fa fa-check"></i></span></a>
                                             <a href="{% url 'edit-details' task.id %}"><span style="color:white;font-size:1rem;"><i class="fa fa-edit"></i></span></a>
                                             <a href="{% url 'delete-task' task.id %}"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a>
                                         </span>
@@ -44,8 +40,7 @@
                                     <li id="task-{{task.id}}" class="list-group-item d-flex justify-content-between align-items-center border mb-2 rounded-0 list-group-item-danger">
                                         {{task.name}}
                                         <span class="badge">
-                                            <a class="ajax-test" id="{{task.id}}" style="color:blue;"><span style="font-size:1rem;"><i class="fa fa-check"></i></span></a>
-                                            <a href="{% url 'finish-task' task.id %}"><span style="color:green;font-size:1rem;"><i class="fa fa-check"></i></span></a>
+                                            <a class="ajax-test" id="{{task.id}}"><span style="color:green;font-size:1rem;"><i class="fa fa-check"></i></span></a>
                                             <a href="{% url 'edit-details' task.id %}"><span style="color:white;font-size:1rem;"><i class="fa fa-edit"></i></span></a>
                                             <a href="{% url 'delete-task' task.id %}"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a>
                                         </span>

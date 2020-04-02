@@ -404,6 +404,7 @@ def component_task_detail(request,project_component_slug,component_task_slug):
 def finish_task_detail(request,pk):
     """
     Changes the completed field of a task to the opposite.
+    OLD METHOD. Will keep for reference, we now use finish_task_ajax.
 
     Arguments:
         request {[http response]} -- [GET or POST]
@@ -426,6 +427,16 @@ def finish_task_detail(request,pk):
 
 @login_required
 def finish_task_ajax(request):
+    """
+    Changes the completed field of a task to the opposite through an AJAX request. Allows the color to change without refreshing the page.
+
+    Arguments:
+        request {[http response]} -- [GET or POST]
+
+    Returns:
+        [http response] -- [success if the response works]
+    """
+
     if request.method == 'GET':
         pk = request.GET.get('pk')
         task = ProjectComponent.objects.get(id=pk)
