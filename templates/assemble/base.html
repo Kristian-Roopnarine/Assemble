@@ -61,6 +61,16 @@
         })
       });
 
+      $.ajax({
+        type:'GET',
+        url:'{% url "project-detail-ajax" project.name.lower %}',
+        success:function(data){
+          console.log(data)
+        }
+      })
+      
+
+
     </script>
 
 </body>

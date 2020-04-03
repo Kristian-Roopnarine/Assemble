@@ -23,13 +23,14 @@ from .views import (
     ProjectEditView,
     log_out,
     history_view,
-    finish_task_ajax
+    finish_task_ajax,
+    project_detail_ajax
     )
 
 # think of consistent URL patterns, mine are all over the place!
 
 urlpatterns = [
-
+    path('project-list/project-detail/ajax/<project_slug>/',project_detail_ajax,name="project-detail-ajax"),
     path('',index,name='home'),
 
     ############################################

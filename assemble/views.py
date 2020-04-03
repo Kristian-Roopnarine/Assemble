@@ -6,7 +6,7 @@ from django.urls import reverse_lazy
 from .models import Project,ProjectComponent,FriendRequest,Profile,ProjectHistory,get_list_of_project_component_history_records,join_queryset_of_historical_records,create_strings_from_queryset
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponse
+from django.http import HttpResponse,JsonResponse
 
 # django form for creating a user
 from .forms import UserCreationForm,ProjectCreateForm,ProjectEditForm,ComponentEditForm,\
@@ -187,19 +187,32 @@ def project_detail_view(request,project_slug):
     # get the components of the project
     # task=None ensures that the component is not a task!
     project_components = ProjectComponent.objects.filter(project__name=project).filter(task=None)
-    tasks = project.projectcomponent_set.all()
-    total_tasks_count = tasks.count() - project_components.count()
-    tasks_finished = tasks.filter(completed=True).count()
-    try:
-        percent_finished =  round(100 * (tasks_finished/total_tasks_count))
-    except ZeroDivisionError:
-        percent_finished = 0
     context = {
         'project':project,
         'project_components':project_components,
-        'percent_finished':percent_finished
     }
+    dict_of_components = [{component.name:[{"name":task.name,"completed":task.completed,"task":task.task} for task in component.component.all()]} for component in project_components]
+    print(dict_of_components)
     return render(request,'assemble/project_detail.html',context)
+
+def project_detail_ajax(request,project_slug):
+    # get my profile
+    is_me = Profile.objects.get(user=request.user)
+
+    # get the project with the project slug passed in from the button
+    # maybe I can use project id instead?
+    project = Project.objects.filter(user=is_me).get(slug=project_slug)
+
+    # get the components of the project
+    # task=None ensures that the component is not a task!
+    project_components = ProjectComponent.objects.filter(project__name=project).filter(task=None)
+    context = {
+        'project':project,
+        'project_components':project_components,
+    }
+    dict_of_components = [{component.name:[{"name":task.name,"completed":task.completed,"task":task.id} for task in component.component.all()]} for component in project_components]
+
+    return JsonResponse(dict_of_components,safe=False)
 
 @login_required
 def delete_project(request,pk):
