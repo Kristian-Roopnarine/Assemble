@@ -57,10 +57,10 @@
                                 <div class="display-none mt-1" id="edit-buttons-{{task.id}}">
                                     <form id="form-{{task.id}}" data-testid="{{task.id}}" method="post" class="form-group edit-form">
                                         <input class="form-control" type="text" id="input-{{task.id}}" value="" name="name">
-                                        <button class="btn btn-sm btn-success my-2 confirm-edit" data-testid="{{task.id}}" id="confirm-edit-{{task.id}}">
+                                        <button class="btn btn-sm btn-success my-2 confirm-edit" data-testid="{{task.id}}" id="confirm-edit-{{task.id}}" type="submit">
                                         Confirm
                                         </button>
-                                        <button class="btn btn-sm btn-danger my-2 cancel-edit" id="cancel-edit-{{task.id}}" data-testid="{{task.id}}" >
+                                        <button class="btn btn-sm btn-danger my-2 cancel-edit" id="cancel-edit-{{task.id}}" data-testid="{{task.id}}" type="button">
                                         Cancel
                                         </button>
                                     </form>
@@ -79,7 +79,7 @@
                                 <label for="name" style="color:black;">Task Name: </label>
                                 <input type="text" class="form-control" id="name-{{component.id}}" name="name"></input>
                                 <button class="create-task btn btn-success btn-sm text-white my-2" id="create-{{component.id}}" type="submit">Submit</button>
-                                <button class="cancel-task btn btn-danger btn-sm text-white my-2" id="cancel-{{component.id}}" >Cancel</button>
+                                <button type="button" class="cancel-task btn btn-danger btn-sm text-white my-2" id="cancel-{{component.id}}" >Cancel</button>
                             </form>
 
                             <button class="show-form-button btn btn-info btn-sm text-white mb-2 btn-block" id="{{component.id}}" class="btn btn-info">Create to do item</button>
@@ -170,7 +170,7 @@
     });
 
     //edit task
-    $(document).on('click',".edit-task", function(){
+    $(document).on('click',".edit-task", function(originalValue){
         var id;
         id = $(this).attr("id")
         var value = $.trim($(this).parent().parent().text())
@@ -179,6 +179,7 @@
         $(`#task-${id}`).addClass('display-none')
         $(`#edit-buttons-${id}`).removeClass('display-none')
         $(`#input-${id}`).val(value)
+        
     });
 
     // cancel edit
@@ -198,11 +199,16 @@
     var createForm = $('.show-form')
     var editForm = $('.edit-form')
     
+    
+
+
     //submit edit
     editForm.submit(function(e){
         e.preventDefault()
         var id;
+        
         id = $(this).data("testid")
+        var originalValue = $.trim($(`#task-${id}`).children().first().text())
 
         //change front end
         var edited_value = $(`#input-${id}`).val()
@@ -211,31 +217,32 @@
         $(`#edit-buttons-${id}`).addClass('display-none')
 
         // validate that it is less than 100 characters
-        if (edited_value.length > 100 ){
-            alert("The edited value is too long. Only less than 100 characters!")
-        } else {
-            $(`#task-${id}`).children().first().text(edited_value)
+        if (edited_value !== originalValue){
+            if(edited_value.length < 100){
+                console.log("Satisifies edit form.")
+                $(`#task-${id}`).children().first().text(edited_value)
 
-            // send to edit-task-ajax
-            $.ajax({
-                type:"POST",
-                // can abstract this into the id of the anchor tags and pull from there instead of hardcoding into django templates
-                url:"{% url 'edit-task-ajax' %}",
-                headers:{
-                    'X-CSRFToken':csrftoken,
-                },
-                data:{
-                    pk:id,
-                    name:edited_value,
-                },
-                success:function(data){
-                
-                    console.log(data)
-                }
-        })
-        }
-        
-
+                // send to edit-task-ajax
+                $.ajax({
+                    type:"POST",
+                    // can abstract this into the id of the anchor tags and pull from there instead of hardcoding into django templates
+                    url:"{% url 'edit-task-ajax' %}",
+                    headers:{
+                        'X-CSRFToken':csrftoken,
+                    },
+                    data:{
+                        pk:id,
+                        name:edited_value,
+                    },
+                    success:function(data){
+                    
+                        console.log(data)
+                    }
+                })
+            } else {
+                alert("Edited value has to be less than 100 characters.")
+            }
+        } 
     })
 
     testFormBtn.click(function(){

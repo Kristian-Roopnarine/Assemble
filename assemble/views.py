@@ -3,7 +3,7 @@ from django.views.generic import ListView
 from django.views.generic.edit import CreateView,UpdateView,DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
-from .models import Project,ProjectComponent,FriendRequest,Profile,ProjectHistory,get_list_of_project_component_history_records,join_queryset_of_historical_records,create_strings_from_queryset
+from .models import Project,ProjectComponent,FriendRequest,Profile,ProjectHistory
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse,JsonResponse

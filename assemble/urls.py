@@ -63,20 +63,12 @@ urlpatterns = [
     name="project-component-create"),
 
     path('project-list/project-detail/component-task-create/<project_component_slug>/',ProjectTaskCreate.as_view(),name='create-task'),
-    path('ajax/component-task-create/',add_task_ajax,name='create-task-ajax'),
     
-
     path('project-list/project-detail/edit-details/<pk>/',edit_component_or_task,name="edit-details"),
-
     path('finish-task/<pk>/',finish_task_detail,name="finish-task"),
-    path('ajax/finish-task-test/',finish_task_ajax,name="finish-task-ajax"),
     path('delete-task/<pk>/',delete_task,name="delete-task"),
 
-    path('ajax/delete-task/',delete_task_ajax,name="delete-task-ajax"),
-    path('ajax/edit-task/',edit_task_ajax,name="edit-task-ajax"),
-
     #path('project-component-detail/<project_component_slug>/<component_task_slug>/',component_task_detail,name="component-task-detail"),
-
 
     ############################################
     ### USER PROFILE AND INTERACTION URLS
@@ -89,4 +81,11 @@ urlpatterns = [
     path('profile/accept-friend-request/<from_user>/',accept_friend_request,name='accept-friend-request'),
     path('profile/delete-friend-request/<pk>/',delete_friend_request,name="delete-friend-request"),
 
+    ############################################
+    ### AJAX VIEWS
+    ############################################
+    path('ajax/delete-task/',delete_task_ajax,name="delete-task-ajax"),
+    path('ajax/edit-task/',edit_task_ajax,name="edit-task-ajax"),
+    path('ajax/component-task-create/',add_task_ajax,name='create-task-ajax'),
+    path('ajax/finish-task-test/',finish_task_ajax,name="finish-task-ajax"),
 ]
