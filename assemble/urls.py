@@ -26,7 +26,8 @@ from .views import (
     finish_task_ajax,
     project_detail_ajax,
     add_task_ajax,
-    delete_task_ajax
+    delete_task_ajax,
+    edit_task_ajax
     )
 
 # think of consistent URL patterns, mine are all over the place!
@@ -72,6 +73,7 @@ urlpatterns = [
     path('delete-task/<pk>/',delete_task,name="delete-task"),
 
     path('ajax/delete-task/',delete_task_ajax,name="delete-task-ajax"),
+    path('ajax/edit-task/',edit_task_ajax,name="edit-task-ajax"),
 
     #path('project-component-detail/<project_component_slug>/<component_task_slug>/',component_task_detail,name="component-task-detail"),
 

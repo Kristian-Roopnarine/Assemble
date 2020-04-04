@@ -34,36 +34,49 @@
                             {% for task in component.component.all %}
                                 {% if task.completed == True %}
                                     <li id="task-{{task.id}}"class="list-group-item d-flex justify-content-between align-items-center border mb-2 rounded-0 list-group-item-success">
-                                        {{task.name}}
+                                        <span>{{task.name}}</span>
                                         <span class="badge">
-                                            <a class="finish-task" id="{{task.id}}"><span style="color:green;font-size:1rem;"><i class="fa fa-check"></i></span></a>
-                                            <a href="{% url 'edit-details' task.id %}"><span style="color:white;font-size:1rem;"><i class="fa fa-edit"></i></span></a>
-                                            <a class="delete-task" id="{{task.id}}"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a>
+                                            <a class="finish-task" style="cursor:pointer;" id="{{task.id}}"><span style="color:green;font-size:1rem;"><i class="fa fa-check"></i></span></a>
+                                            <a class="edit-task" id="{{task.id}}" style="cursor:pointer;"><span style="color:white;font-size:1rem;"><i class="fa fa-edit"></i></span></a>
+                                            <a class="delete-task" style="cursor:pointer;" id="{{task.id}}"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a>
                                         </span>
                                     </li>
 
                                 {% else %}
                                     <li id="task-{{task.id}}" class="list-group-item d-flex justify-content-between align-items-center border mb-2 rounded-0 list-group-item-danger">
-                                        {{task.name}}
+                                        <span>{{task.name}}<span>
                                         <span class="badge">
-                                            <a class="finish-task" id="{{task.id}}"><span style="color:green;font-size:1rem;"><i class="fa fa-check"></i></span></a>
-                                            <a href="{% url 'edit-details' task.id %}"><span style="color:white;font-size:1rem;"><i class="fa fa-edit"></i></span></a>
-                                            <a class="delete-task" id="{{task.id}}"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a>
+                                            <a class="finish-task" style="cursor:pointer;" id="{{task.id}}"><span style="color:green;font-size:1rem;"><i class="fa fa-check"></i></span></a>
+                                            <a class="edit-task" id="{{task.id}}" style="cursor:pointer;"><span style="color:white;font-size:1rem;"><i class="fa fa-edit"></i></span></a>
+                                            <a style="cursor:pointer;" class="delete-task" id="{{task.id}}"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a>
                                         </span>
                                     </li>
+
                                 {% endif %}
+
+                                <div class="display-none mt-1" id="edit-buttons-{{task.id}}">
+                                    <form id="form-{{task.id}}" data-testid="{{task.id}}" method="post" class="form-group edit-form">
+                                        <input class="form-control" type="text" id="input-{{task.id}}" value="" name="name">
+                                        <button class="btn btn-sm btn-success my-2 confirm-edit" data-testid="{{task.id}}" id="confirm-edit-{{task.id}}">
+                                        Confirm
+                                        </button>
+                                        <button class="btn btn-sm btn-danger my-2 cancel-edit" id="cancel-edit-{{task.id}}" data-testid="{{task.id}}" >
+                                        Cancel
+                                        </button>
+                                    </form>
+                                </div>
                             {% endfor %}
 
                             {#<a class="btn btn-info btn-sm text-white mb-2" href="{% url 'create-task' component.slug %}"><i class="fa fa-plus"></i> Create To do items</a>#}
 
                             {# this renders one modal form for each component#}
                             {# might not be the most efficient way to do this #}
-                            
+
                         </ul>
                         <div class="card-footer">
                             <form id="form-{{component.id}}" method="post" class="form-group show-form display-none" >
                                 {% csrf_token %}
-                                <label for="name" style="color:black;">Task Name: </label> 
+                                <label for="name" style="color:black;">Task Name: </label>
                                 <input type="text" class="form-control" id="name-{{component.id}}" name="name"></input>
                                 <button class="create-task btn btn-success btn-sm text-white my-2" id="create-{{component.id}}" type="submit">Submit</button>
                                 <button class="cancel-task btn btn-danger btn-sm text-white my-2" id="cancel-{{component.id}}" >Cancel</button>
@@ -75,7 +88,7 @@
                                 <i class="fa fa-tasks"></i> Create To do items
                             </button>
                             -->
-                            
+
                         </div>
                     </div>
                 </div>
@@ -139,6 +152,7 @@
         })
     });
 
+    // delete task icon
     $(document).on('click',".delete-task", function(){
         var id;
         id = $(this).attr("id");
@@ -155,10 +169,74 @@
         })
     });
 
+    //edit task
+    $(document).on('click',".edit-task", function(){
+        var id;
+        id = $(this).attr("id")
+        var value = $.trim($(this).parent().parent().text())
+        // removes the leading and trailing white spaces.
+        $(`#task-${id}`).removeClass('d-flex')
+        $(`#task-${id}`).addClass('display-none')
+        $(`#edit-buttons-${id}`).removeClass('display-none')
+        $(`#input-${id}`).val(value)
+    });
+
+    // cancel edit
+    $(document).on('click',".cancel-edit", function(){
+        var id;
+        id = $(this).data("testid")
+        $(`#task-${id}`).addClass('d-flex')
+        $(`#task-${id}`).removeClass('display-none')
+        $(`#edit-buttons-${id}`).addClass('display-none')
+        
+        
+    });
+
     var testFormBtn = $(".show-form-button")
     var cancelTask = $(".cancel-task")
     var createTask = $(".create-task")
     var createForm = $('.show-form')
+    var editForm = $('.edit-form')
+    
+    //submit edit
+    editForm.submit(function(e){
+        e.preventDefault()
+        var id;
+        id = $(this).data("testid")
+
+        //change front end
+        var edited_value = $(`#input-${id}`).val()
+        $(`#task-${id}`).addClass('d-flex')
+        $(`#task-${id}`).removeClass('display-none')
+        $(`#edit-buttons-${id}`).addClass('display-none')
+
+        // validate that it is less than 100 characters
+        if (edited_value.length > 100 ){
+            alert("The edited value is too long. Only less than 100 characters!")
+        } else {
+            $(`#task-${id}`).children().first().text(edited_value)
+
+            // send to edit-task-ajax
+            $.ajax({
+                type:"POST",
+                // can abstract this into the id of the anchor tags and pull from there instead of hardcoding into django templates
+                url:"{% url 'edit-task-ajax' %}",
+                headers:{
+                    'X-CSRFToken':csrftoken,
+                },
+                data:{
+                    pk:id,
+                    name:edited_value,
+                },
+                success:function(data){
+                
+                    console.log(data)
+                }
+        })
+        }
+        
+
+    })
 
     testFormBtn.click(function(){
         var id = $(this).attr("id")
@@ -168,13 +246,13 @@
         $(`#${id}`).addClass("display-none")
     })
 
-    // on form submit
+    // on create form submit
     createForm.submit(function(e){
         e.preventDefault()
         var id = $(this).siblings('.show-form-button').attr("id")
         var name = $(`#name-${id}`).val()
         $(this)[0].reset()
-        
+
         //submit an ajax request to the backend
         $.ajax({
             type:"POST",
@@ -188,7 +266,7 @@
                 name:name,
             },
             success:function(data){
-            // add row 
+            // add row
                 addRow(id,data)
             }
         })
@@ -203,7 +281,7 @@
     function addRow(id,data){
         // id is the id of the component
         var componentList = $(`#list-${id}`)
-        var listDiv = `<li id="task-${data.id}" class="list-group-item d-flex justify-content-between align-items-center border mb-2 rounded-0 list-group-item-danger">${data.name}<span class="badge"><a class="finish-task" id="${data.id}"><span style="color:green;font-size:1rem;"><i class="fa fa-check"></i></span></a><a href="#"><span style="color:white;font-size:1rem;"><i class="fa fa-edit"></i></span></a><a class="delete-task" id="${data.id}"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a></span></li>`
+        var listDiv = `<li id="task-${data.id}" class="list-group-item d-flex justify-content-between align-items-center border mb-2 rounded-0 list-group-item-danger">${data.name}<span class="badge"><a class="finish-task" id="${data.id}" style="cursor:pointer;"><span style="color:green;font-size:1rem;"><i class="fa fa-check"></i></span></a><a href="#" style="cursor:pointer;"><span style="color:white;font-size:1rem;"><i class="fa fa-edit"></i></span></a><a class="delete-task" id="${data.id}" style="cursor:pointer;"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a></span></li>`
         componentList.append(listDiv)
 
     }

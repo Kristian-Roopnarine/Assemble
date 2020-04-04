@@ -698,8 +698,22 @@ def finish_task_ajax(request):
 
 @login_required
 def edit_task_ajax(request):
-    # pass to editcomponentortask form
-    pass
+    if request.method == 'POST':
+        # request.POST is a QueryDict object
+        # need to turn into a dictionary and extract contents
+        contents = request.POST.dict()
+        pk = contents.pop('pk')
+        component = ProjectComponent.objects.get(id=pk)
+        previous_name = component.name
+        form = ComponentEditForm(contents,instance=component)
+        if form.is_valid():
+            # maybe create the instance here?
+            ProjectHistory.objects.create(user=request.user.username,previous_field=previous_name,updated_field=form.instance.name,status="edited",project=component.project)
+            form.save()
+            messages.success(request,f"Successfully edited '{component}'")
+            return HttpResponse("success")
+        
+        
 
 @login_required
 def delete_task_ajax(request):
