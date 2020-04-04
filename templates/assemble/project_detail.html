@@ -4,6 +4,12 @@
 
 {% block content %}
 
+<style>
+    .display-none{
+        display:none;
+    }
+
+</style>
 
 <div class="container text-center my-3">
     <h1 id="project-name">{{ project.name }}</h1>
@@ -24,7 +30,7 @@
                         <a href="{% url 'delete-task' component.id %}"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a>
                     </div>
                     <div class="list-group">
-                        <ul class="list-group px-3" style="overflow-y:scroll;max-height:400px;">
+                        <ul id="list-{{component.id}}" class="list-group px-3" style="overflow-y:scroll;max-height:400px;">
                             {% for task in component.component.all %}
                                 {% if task.completed == True %}
                                     <li id="task-{{task.id}}"class="list-group-item d-flex justify-content-between align-items-center border mb-2 rounded-0 list-group-item-success">
@@ -32,7 +38,7 @@
                                         <span class="badge">
                                             <a class="ajax-test" id="{{task.id}}"><span style="color:green;font-size:1rem;"><i class="fa fa-check"></i></span></a>
                                             <a href="{% url 'edit-details' task.id %}"><span style="color:white;font-size:1rem;"><i class="fa fa-edit"></i></span></a>
-                                            <a href="{% url 'delete-task' task.id %}"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a>
+                                            <a class="delete-task"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a>
                                         </span>
                                     </li>
 
@@ -40,9 +46,9 @@
                                     <li id="task-{{task.id}}" class="list-group-item d-flex justify-content-between align-items-center border mb-2 rounded-0 list-group-item-danger">
                                         {{task.name}}
                                         <span class="badge">
-                                            <a class="ajax-test" id="{{task.id}}"><span style="color:green;font-size:1rem;"><i class="fa fa-check"></i></span></a>
+                                            <a class="finish-task" id="{{task.id}}"><span style="color:green;font-size:1rem;"><i class="fa fa-check"></i></span></a>
                                             <a href="{% url 'edit-details' task.id %}"><span style="color:white;font-size:1rem;"><i class="fa fa-edit"></i></span></a>
-                                            <a href="{% url 'delete-task' task.id %}"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a>
+                                            <a class="delete-task" id="{{task.id}}"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a>
                                         </span>
                                     </li>
                                 {% endif %}
@@ -52,18 +58,160 @@
 
                             {# this renders one modal form for each component#}
                             {# might not be the most efficient way to do this #}
-
+                            
                         </ul>
                         <div class="card-footer">
+                            <form id="form-{{component.id}}" method="post" class="form-group show-form display-none" >
+                                {% csrf_token %}
+                                <label for="name" style="color:black;">Task Name: </label> 
+                                <input type="text" class="form-control" id="name-{{component.id}}" name="name"></input>
+                                <button class="create-task btn btn-success btn-sm text-white my-2" id="create-{{component.id}}" type="submit">Submit</button>
+                                <button class="cancel-task btn btn-danger btn-sm text-white my-2" id="cancel-{{component.id}}" >Cancel</button>
+                            </form>
+
+                            <button class="show-form-button btn btn-info btn-sm text-white mb-2 btn-block" id="{{component.id}}" class="btn btn-info">Create to do item</button>
+                            <!--
                             <button class="btn btn-info btn-sm text-white mb-2 btn-block" data-toggle="modal" data-target="#component-{{component.slug}}">
                                 <i class="fa fa-tasks"></i> Create To do items
                             </button>
+                            -->
+                            
                         </div>
                     </div>
                 </div>
             </div>
+            {% comment %}
             {% include 'assemble/form_templates/modal_task_form.html' %}
+            {% endcomment %}
         {% endfor %}
     </div>
 
 {% endblock content %}
+
+
+{% block javascript %}
+<script type="text/javascript">
+
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
+
+    // function to add or remove class from tags
+    function changeTaskStatus(item,completed,uncompleted){
+        var taskCompleted = $(item).hasClass(completed);
+        if (taskCompleted){
+            $(item).removeClass(completed)
+            $(item).addClass(uncompleted)
+        } else {
+            $(item).removeClass(uncompleted)
+            $(item).addClass(completed)
+        }
+    }
+
+    // updates change task
+    // $(.ajax-test) is only set on page load
+    $(document).on('click',".finish-task", function(){
+        var id;
+        id = $(this).attr("id");
+        $.ajax({
+            type:"GET",
+            // can abstract this into the id of the anchor tags and pull from there instead of hardcoding into django templates
+            url:"{% url 'finish-task-ajax' %}",
+            data:{
+                pk:id,
+            },
+            success:function(data){
+                changeTaskStatus(`#task-${id}`,"list-group-item-success","list-group-item-danger");
+            }
+        })
+    });
+
+    $(document).on('click',".delete-task", function(){
+        var id;
+        id = $(this).attr("id");
+        $.ajax({
+            type:"GET",
+            // can abstract this into the id of the anchor tags and pull from there instead of hardcoding into django templates
+            url:"{% url 'delete-task-ajax' %}",
+            data:{
+                pk:id,
+            },
+            success:function(data){
+                removeRow(id)
+            }
+        })
+    });
+
+    var testFormBtn = $(".show-form-button")
+    var cancelTask = $(".cancel-task")
+    var createTask = $(".create-task")
+    var createForm = $('.show-form')
+
+    testFormBtn.click(function(){
+        var id = $(this).attr("id")
+        $(`#form-${id}`).removeClass("display-none")
+        $(`#create-${id}`).css("display","inline")
+        $(`#cancel-${id}`).css("display","inline")
+        $(`#${id}`).addClass("display-none")
+    })
+
+    // on form submit
+    createForm.submit(function(e){
+        e.preventDefault()
+        var id = $(this).siblings('.show-form-button').attr("id")
+        var name = $(`#name-${id}`).val()
+        $(this)[0].reset()
+        
+        //submit an ajax request to the backend
+        $.ajax({
+            type:"POST",
+            // can abstract this into the id of the anchor tags and pull from there instead of hardcoding into django templates
+            url:"{% url 'create-task-ajax' %}",
+            headers:{
+                'X-CSRFToken':csrftoken,
+            },
+            data:{
+                pk:id,
+                name:name,
+            },
+            success:function(data){
+            // add row 
+                addRow(id,data)
+            }
+        })
+    })
+
+    cancelTask.click(function(e){
+        e.preventDefault()
+        $(this).parent(".show-form").addClass('display-none')
+        $(this).parent().siblings('.show-form-button').removeClass('display-none')
+    })
+
+    function addRow(id,data){
+        // id is the id of the component
+        var componentList = $(`#list-${id}`)
+        var listDiv = `<li id="task-${data.id}" class="list-group-item d-flex justify-content-between align-items-center border mb-2 rounded-0 list-group-item-danger">${data.name}<span class="badge"><a class="ajax-test" id="${data.id}"><span style="color:green;font-size:1rem;"><i class="fa fa-check"></i></span></a></span></li>`
+        componentList.append(listDiv)
+
+    }
+
+    function removeRow(id){
+        var listDiv = $(`#task-${id}`)
+        listDiv.remove()
+    }
+
+</script>
+{% endblock javascript %}

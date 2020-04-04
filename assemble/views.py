@@ -10,11 +10,12 @@ from django.http import HttpResponse,JsonResponse
 
 # django form for creating a user
 from .forms import UserCreationForm,ProjectCreateForm,ProjectEditForm,ComponentEditForm,\
-    UserFeedbackCreateForm
+    UserFeedbackCreateForm,ProjectTaskCreateForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login,logout
 from django.db.models import Q
 from django.contrib.auth.models import User
+import json
 # Create your views here.
 
 
@@ -191,28 +192,8 @@ def project_detail_view(request,project_slug):
         'project':project,
         'project_components':project_components,
     }
-    dict_of_components = [{component.name:[{"name":task.name,"completed":task.completed,"task":task.task} for task in component.component.all()]} for component in project_components]
-    print(dict_of_components)
     return render(request,'assemble/project_detail.html',context)
 
-def project_detail_ajax(request,project_slug):
-    # get my profile
-    is_me = Profile.objects.get(user=request.user)
-
-    # get the project with the project slug passed in from the button
-    # maybe I can use project id instead?
-    project = Project.objects.filter(user=is_me).get(slug=project_slug)
-
-    # get the components of the project
-    # task=None ensures that the component is not a task!
-    project_components = ProjectComponent.objects.filter(project__name=project).filter(task=None)
-    context = {
-        'project':project,
-        'project_components':project_components,
-    }
-    dict_of_components = [{component.name:[{"name":task.name,"completed":task.completed,"task":task.id} for task in component.component.all()]} for component in project_components]
-
-    return JsonResponse(dict_of_components,safe=False)
 
 @login_required
 def delete_project(request,pk):
@@ -371,13 +352,14 @@ class ProjectTaskCreate(LoginRequiredMixin,CreateView):
             [http response] -- [if successful redirects the user to the project-detail.]
         """
         component = ProjectComponent.objects.get(slug=self.kwargs['project_component_slug'])
+        component = ProjectComponent.objects.get(id=pk)
         form.instance.project = component.project
         form.instance.task = component
         super().form_valid(form)
         ProjectHistory.objects.create(user=self.request.user.username,previous_field=form.instance.name,status="created",project=form.instance.project)
         messages.success(self.request,f"Added '{form.instance.name}' to '{form.instance.task}'")
         return redirect('project-detail',project_slug=component.project.slug)
-
+    '''
     def get_context_data(self,**kwargs):
         """
         Queries the DB for information about the project component to pass into the form.
@@ -389,7 +371,7 @@ class ProjectTaskCreate(LoginRequiredMixin,CreateView):
         component = ProjectComponent.objects.get(slug=self.kwargs['project_component_slug'])
         context['component'] = component
         return context
-
+    '''
 
 
 # view tasks of a component
@@ -438,30 +420,7 @@ def finish_task_detail(request,pk):
         messages.success(request,f"The task '{task}' completed status was changed to {task.completed}.")
         return redirect(task.project)
 
-@login_required
-def finish_task_ajax(request):
-    """
-    Changes the completed field of a task to the opposite through an AJAX request. Allows the color to change without refreshing the page.
 
-    Arguments:
-        request {[http response]} -- [GET or POST]
-
-    Returns:
-        [http response] -- [success if the response works]
-    """
-
-    if request.method == 'GET':
-        pk = request.GET.get('pk')
-        task = ProjectComponent.objects.get(id=pk)
-        bf = task.completed
-        task.completed = not bf
-        task.save()
-        # maybe turn this into a function?
-        if task.completed == True:
-            ProjectHistory.objects.create(user=request.user.username,previous_field=task.name,updated_field=task.completed,status="updated to true",project=task.project)
-        else:
-            ProjectHistory.objects.create(user=request.user.username,previous_field=task.name,updated_field=task.completed,status="updated to false",project=task.project)
-        return HttpResponse('success')
 
 @login_required
 def delete_task(request,pk):
@@ -706,3 +665,88 @@ def edit_project(request,id):
             messages.success(request,f"Edited the project '{project.name}'.")
             return redirect('project-list')
 """
+
+############################################
+### AJAX VIEWS
+############################################
+
+
+@login_required
+def finish_task_ajax(request):
+    """
+    Changes the completed field of a task to the opposite through an AJAX request. Allows the color to change without refreshing the page.
+
+    Arguments:
+        request {[http response]} -- [GET or POST]
+
+    Returns:
+        [http response] -- [success if the response works]
+    """
+
+    if request.method == 'GET':
+        pk = request.GET.get('pk')
+        task = ProjectComponent.objects.get(id=pk)
+        bf = task.completed
+        task.completed = not bf
+        task.save()
+        # maybe turn this into a function?
+        if task.completed == True:
+            ProjectHistory.objects.create(user=request.user.username,previous_field=task.name,updated_field=task.completed,status="updated to true",project=task.project)
+        else:
+            ProjectHistory.objects.create(user=request.user.username,previous_field=task.name,updated_field=task.completed,status="updated to false",project=task.project)
+        return HttpResponse('success')
+
+@login_required
+def edit_task_ajax(request):
+    # pass to editcomponentortask form
+    pass
+
+@login_required
+def delete_task_ajax(request):
+    if request.method == 'GET':
+        print("you made it")
+        print(request.GET)
+        pk = request.GET.get('pk')
+        task = ProjectComponent.objects.get(id=pk)
+        task.delete()
+        ProjectHistory.objects.create(user=request.user.username,previous_field=task.name,status="deleted",project=task.project)
+        return HttpResponse("success")
+
+@login_required
+def add_task_ajax(request):
+    # it works!
+    if request.method == 'POST':
+        q = request.POST.dict()
+        pk = q.pop('pk')
+        form = ProjectTaskCreateForm(q)
+        if form.is_valid():
+            new_task = form.save(commit=False)
+            component = ProjectComponent.objects.get(id=int(pk))
+            new_task.task = component
+            new_task.project= component.project
+            new_task.save()
+            ProjectHistory.objects.create(user=request.user.username,previous_field=new_task.name,status="created",project=new_task.project)
+            json_data = {"id":new_task.id,"name":new_task.name}
+            return JsonResponse(json_data,safe=False)
+            
+        
+
+@login_required
+def project_detail_ajax(request,project_slug):
+    # get my profile
+    is_me = Profile.objects.get(user=request.user)
+
+    # get the project with the project slug passed in from the button
+    # maybe I can use project id instead?
+    project = Project.objects.filter(user=is_me).get(slug=project_slug)
+
+    # get the components of the project
+    # task=None ensures that the component is not a task!
+    project_components = ProjectComponent.objects.filter(project__name=project).filter(task=None)
+    context = {
+        'project':project,
+        'project_components':project_components,
+    }
+    dict_of_components = [{component.name:[{"name":task.name,"completed":task.completed,"task":task.id} for task in component.component.all()]} for component in project_components]
+
+    return JsonResponse(dict_of_components,safe=False)

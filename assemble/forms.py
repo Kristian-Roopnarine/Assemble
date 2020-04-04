@@ -135,6 +135,14 @@ class ProjectEditForm(forms.ModelForm):
         return kwargs
     """
 
+class ProjectTaskCreateForm(forms.ModelForm):
+    class Meta:
+        model = ProjectComponent
+        fields = ['name']
+
+
+
+
 class ComponentEditForm(forms.ModelForm):
     """
     Allows a user to edit components/tasks of a project.
