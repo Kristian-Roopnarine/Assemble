@@ -26,9 +26,9 @@
         background-color:#ffa500;
     }
 </style>
+<div class="message-box" style="position:absolute;right:10px;"></div>
 
 <div class="container text-center my-3">
-    <div class="message-box" style="position:absolute;right:10px;"></div>
     <h1 id="project-name">{{ project.name }}</h1>
     <h4>{{project.description}}</h4>
     
@@ -136,6 +136,12 @@
 {% block javascript %}
 <script type="text/javascript">
 
+    var testFormBtn = $(".show-form-button")
+    var cancelTask = $(".cancel-task")
+    var createTask = $(".create-task")
+    var createForm = $('.show-form')
+    var editForm = $('.edit-form')
+
     function getCookie(name) {
         var cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -163,6 +169,48 @@
             $(item).removeClass(uncompleted)
             $(item).addClass(completed)
         }
+    }
+    function addRow(id,data){
+        // id is the id of the component
+        var componentList = $(`#list-${id}`)
+        var listDiv = `<li id="task-${data.id}" class="list-group-item d-flex justify-content-between align-items-center mb-2 rounded-0 bg-light uncompleted">
+        <span class="text-dark">${data.name}</span>
+        <span class="badge d-flex flex-column">
+        <a class="finish-task" id="${data.id}" style="cursor:pointer;"><span style="color:green;font-size:1rem;"><i class="fa fa-check"></i></span></a>
+        <a class="edit-task" id="${data.id}" style="cursor:pointer;"><span style="color:orange;font-size:1rem;"><i class="fa fa-edit"></i></span></a>
+        <a class="delete-task" id="${data.id}" style="cursor:pointer;"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a>
+        </span>
+        </li>`
+        componentList.append(listDiv)
+
+    }
+
+    function removeRow(id){
+        var listDiv = $(`#task-${id}`)
+        listDiv.remove()
+    }
+
+    function createAlert(data,action_type){
+        if (action_type === 'deleted'){
+            var status = 'deleted'
+        } else if (action_type === 'updated'){
+            var status = 'updated'
+        } else if (action_type === 'edited'){
+            var status = 'edited'
+        } else {
+            var status = 'created'
+        }
+        $('.message-box').append(
+            `<div class="alert alert-success alert-dismissible fade show" id="message-alert" role="alert">
+                Successfully ${status} ${data.name}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>`
+        )
+        setTimeout(function(){
+            $('#message-alert').remove()
+        },1000)
     }
 
     // updates change task
@@ -226,15 +274,6 @@
         
     });
 
-    var testFormBtn = $(".show-form-button")
-    var cancelTask = $(".cancel-task")
-    var createTask = $(".create-task")
-    var createForm = $('.show-form')
-    var editForm = $('.edit-form')
-    
-    
-
-
     //submit edit
     editForm.submit(function(e){
         e.preventDefault()
@@ -285,28 +324,7 @@
         $(`#${id}`).addClass("display-none")
     })
 
-    function createAlert(data,action_type){
-        if (action_type === 'deleted'){
-            var status = 'deleted'
-        } else if (action_type === 'updated'){
-            var status = 'updated'
-        } else if (action_type === 'edited'){
-            var status = 'edited'
-        } else {
-            var status = 'created'
-        }
-        $('.message-box').append(
-            `<div class="alert alert-success alert-dismissible fade show" id="message-alert" role="alert">
-                Successfully ${status} ${data.name}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>`
-        )
-        setTimeout(function(){
-            $('#message-alert').remove()
-        },1000)
-    }
+
 
     // on create form submit
     createForm.submit(function(e){
@@ -341,25 +359,7 @@
         $(this).parent().siblings('.show-form-button').removeClass('display-none')
     })
 
-    function addRow(id,data){
-        // id is the id of the component
-        var componentList = $(`#list-${id}`)
-        var listDiv = `<li id="task-${data.id}" class="list-group-item d-flex justify-content-between align-items-center mb-2 rounded-0 bg-light uncompleted">
-        <span class="text-dark">${data.name}</span>
-        <span class="badge d-flex flex-column">
-        <a class="finish-task" id="${data.id}" style="cursor:pointer;"><span style="color:green;font-size:1rem;"><i class="fa fa-check"></i></span></a>
-        <a class="edit-task" id="${data.id}" style="cursor:pointer;"><span style="color:orange;font-size:1rem;"><i class="fa fa-edit"></i></span></a>
-        <a class="delete-task" id="${data.id}" style="cursor:pointer;"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a>
-        </span>
-        </li>`
-        componentList.append(listDiv)
-
-    }
-
-    function removeRow(id){
-        var listDiv = $(`#task-${id}`)
-        listDiv.remove()
-    }
 
 </script>
+
 {% endblock javascript %}

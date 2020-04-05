@@ -161,8 +161,6 @@ class ProjectCreate(LoginRequiredMixin,CreateView):
         # needs to return a HttpResponse Object
         # before it returned super().form_valid(form)
         # however when using a m2m relationship, the object needs to be saved FIRST, then relationships can be made.
-
-        messages.success(self.request,f"Created {form.instance.name}")
         return redirect('project-list')
 
 @login_required
@@ -261,7 +259,6 @@ class ProjectEditView(LoginRequiredMixin,UpdateView):
         # needs to return a HttpResponse Object
         # before it returned super().form_valid(form)
         # however when using a m2m relationship, the object needs to be saved FIRST, then relationships can be made.
-        messages.success(self.request, f"Edited {form.instance.name}")
         return redirect('project-list')
 
 def history_view(request,pk):
@@ -325,75 +322,6 @@ class ProjectComponentCreate(LoginRequiredMixin,CreateView):
         project = Project.objects.get(slug=self.kwargs['project_slug'])
         context['project'] = project
         return context
-
-class ProjectTaskCreate(LoginRequiredMixin,CreateView):
-    """
-    A class based view to create a form to create child tasks to parent components.
-
-    Arguments:
-        LoginRequiredMixin {[class]} -- [Requires our users to be logged in.]
-        CreateView {[class]} -- [Creates the form]
-
-    Returns:
-        [http response] -- [if successful, will redirect user to project-detail view.]
-    """
-    model = ProjectComponent
-    fields = ['name']
-    template_name = "assemble/form_templates/create_to_do_items.html"
-
-    def form_valid(self,form):
-        """
-        Overriding the default form_valid method to save relationships. Adds the relationship of parent component to the child task. Adds the task as a child to the project. The form opens up as a modal in the project-detail view.
-
-        Arguments:
-            form {form} -- [ProjectTaskCreate form created from form in forms.py.]
-
-        Returns:
-            [http response] -- [if successful redirects the user to the project-detail.]
-        """
-        component = ProjectComponent.objects.get(slug=self.kwargs['project_component_slug'])
-        component = ProjectComponent.objects.get(id=pk)
-        form.instance.project = component.project
-        form.instance.task = component
-        super().form_valid(form)
-        ProjectHistory.objects.create(user=self.request.user.username,previous_field=form.instance.name,status="created",project=form.instance.project)
-        messages.success(self.request,f"Added '{form.instance.name}' to '{form.instance.task}'")
-        return redirect('project-detail',project_slug=component.project.slug)
-    '''
-    def get_context_data(self,**kwargs):
-        """
-        Queries the DB for information about the project component to pass into the form.
-
-        Returns:
-            [dictionary] -- [key values pairs of information to display in the componenttask_form.html.]
-        """
-        context= super().get_context_data(**kwargs)
-        component = ProjectComponent.objects.get(slug=self.kwargs['project_component_slug'])
-        context['component'] = component
-        return context
-    '''
-
-
-# view tasks of a component
-# do I even use this
-# reconsider
-"""
-@login_required
-def project_component_detail_view(request,project_component_slug):
-    component = ProjectComponent.objects.get(slug=project_component_slug)
-    component_tasks = component.component.all()
-    context = {
-        'component_tasks':component_tasks,
-        'component':component,
-    }
-    return render(request,'assemble/project_component.html',context)
-
-
-@login_required
-#reconsider using this
-def component_task_detail(request,project_component_slug,component_task_slug):
-    return render(request,'assemble/task_detail.html')
-"""
 
 @login_required
 def finish_task_detail(request,pk):
@@ -639,33 +567,6 @@ def delete_friend_request(request,pk):
     return redirect('profile')
 
 
-
-"""
-TODO: find out why this wasn't working
-Problem: The form wasn't saving the person editing the form into the m2m relationship by default.
-@login_required
-# only owner can edit this
-# use edit view?
-def edit_project(request,id):
-    project = Project.objects.get(id=id)
-    context = {
-        'project':project,
-    }
-    if request.method == 'GET':
-        # TODO: Make form
-        form = ProjectEditForm(request.user,instance = project)
-        # TODO: make URL
-        context['form']=form
-        return render(request,'assemble/project_edit_form.html',context)
-    elif request.method =='POST':
-        form = ProjectEditForm(request.user,request.POST,instance=project)
-        if form.is_valid():
-            is_me = Profile.objects.get(user=request.user)
-            form.save()
-            messages.success(request,f"Edited the project '{project.name}'.")
-            return redirect('project-list')
-"""
-
 ############################################
 ### AJAX VIEWS
 ############################################
@@ -725,7 +626,7 @@ def delete_task_ajax(request):
         task = ProjectComponent.objects.get(id=pk)
         task.delete()
         ProjectHistory.objects.create(user=request.user.username,previous_field=task.name,status="deleted",project=task.project)
-        json_data = {'name':'task.name'}
+        json_data = {'name':task.name}
         return JsonResponse(json_data,safe=False)
 
 @login_required
