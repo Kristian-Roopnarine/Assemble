@@ -1,5 +1,7 @@
 <h1>Assemble</h1>
 
+Live demo :https://assemble-kristian.herokuapp.com/
+
 <p> Assemble is an application that supports the top-down development of applications. Users can create projects, refine their projects into smaller projects and create to do lists for those smaller projects. If any of your friends are working with you on the project they can be added into the workflow. </p>
 
 <h3> How to get Assemble running</h3>
