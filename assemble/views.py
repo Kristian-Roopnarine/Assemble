@@ -684,7 +684,7 @@ def finish_task_ajax(request):
     """
 
     if request.method == 'GET':
-        pk = request.GET.get('pk')
+        pk = int(request.GET.get('pk'))
         task = ProjectComponent.objects.get(id=pk)
         bf = task.completed
         task.completed = not bf
@@ -694,7 +694,8 @@ def finish_task_ajax(request):
             ProjectHistory.objects.create(user=request.user.username,previous_field=task.name,updated_field=task.completed,status="updated to true",project=task.project)
         else:
             ProjectHistory.objects.create(user=request.user.username,previous_field=task.name,updated_field=task.completed,status="updated to false",project=task.project)
-        return HttpResponse('success')
+        json_data = {'name':task.name}
+        return JsonResponse(json_data,safe=False)
 
 @login_required
 def edit_task_ajax(request):
@@ -710,8 +711,8 @@ def edit_task_ajax(request):
             # maybe create the instance here?
             ProjectHistory.objects.create(user=request.user.username,previous_field=previous_name,updated_field=form.instance.name,status="edited",project=component.project)
             form.save()
-            messages.success(request,f"Successfully edited '{component}'")
-            return HttpResponse("success")
+            json_data = {'name':form.instance.name}
+            return JsonResponse(json_data,safe=False)
         
         
 
@@ -724,7 +725,8 @@ def delete_task_ajax(request):
         task = ProjectComponent.objects.get(id=pk)
         task.delete()
         ProjectHistory.objects.create(user=request.user.username,previous_field=task.name,status="deleted",project=task.project)
-        return HttpResponse("success")
+        json_data = {'name':'task.name'}
+        return JsonResponse(json_data,safe=False)
 
 @login_required
 def add_task_ajax(request):

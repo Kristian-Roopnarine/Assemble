@@ -28,14 +28,19 @@
 </style>
 
 <div class="container text-center my-3">
+    <div class="message-box" style="position:absolute;right:10px;"></div>
     <h1 id="project-name">{{ project.name }}</h1>
     <h4>{{project.description}}</h4>
+    
+    
 </div>
 
     <div class="row text-center flex-nowrap">
         <div class="col-md-2">
             <a class="btn btn-orange text-white mb-2" href="{% url 'project-history' project.id %}"><i class="fa fa-history"></i> View Project History</a>
-            <a class="btn btn-primary text-white" href="{% url 'project-component-create' project.slug %}"><i class="fa fa-sitemap"></i> Create Smaller Projects</a>
+            <a class="btn btn-primary text-white mb-2" href="{% url 'project-component-create' project.slug %}"><i class="fa fa-sitemap"></i> Create Smaller Projects</a>
+            
+            
             
         </div>
 
@@ -174,6 +179,7 @@
             },
             success:function(data){
                 changeTaskStatus(`#task-${id}`,"completed","uncompleted");
+                createAlert(data,'updated')
             }
         })
     });
@@ -191,6 +197,7 @@
             },
             success:function(data){
                 removeRow(id)
+                createAlert(data,'deleted')
             }
         })
     });
@@ -261,8 +268,7 @@
                         name:edited_value,
                     },
                     success:function(data){
-                    
-                        console.log(data)
+                        createAlert(data,'edited')
                     }
                 })
             } else {
@@ -278,6 +284,29 @@
         $(`#cancel-${id}`).css("display","inline")
         $(`#${id}`).addClass("display-none")
     })
+
+    function createAlert(data,action_type){
+        if (action_type === 'deleted'){
+            var status = 'deleted'
+        } else if (action_type === 'updated'){
+            var status = 'updated'
+        } else if (action_type === 'edited'){
+            var status = 'edited'
+        } else {
+            var status = 'created'
+        }
+        $('.message-box').append(
+            `<div class="alert alert-success alert-dismissible fade show" id="message-alert" role="alert">
+                Successfully ${status} ${data.name}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>`
+        )
+        setTimeout(function(){
+            $('#message-alert').remove()
+        },1000)
+    }
 
     // on create form submit
     createForm.submit(function(e){
@@ -301,6 +330,7 @@
             success:function(data){
             // add row
                 addRow(id,data)
+                createAlert(data,'created')
             }
         })
     })
