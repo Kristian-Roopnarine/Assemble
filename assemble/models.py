@@ -88,6 +88,20 @@ class ProjectComponent(models.Model):
     def get_absolute_url(self):
         return reverse('project-detail',kwargs={'project_slug':self.project.slug})
 
+class ProjectIndex(models.Model):
+    """ Models to be shown on the home page.
+    """
+    name = models.CharField(max_length=60)
+    description = models.TextField(max_length=400)
+
+class ProjectComponentIndex(models.Model):
+    """Models to be shown on the home page.
+    """
+    name = models.CharField(max_length=200) # can change this
+    completed = models.BooleanField(default=False) # can change this
+    task = models.ForeignKey('self',null=True,blank=True,default=None,related_name="component",
+                             on_delete=models.CASCADE)
+    project = models.ForeignKey(ProjectIndex,on_delete=models.CASCADE)
 
 
 class Profile(models.Model):

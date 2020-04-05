@@ -3,7 +3,7 @@ from django.views.generic import ListView
 from django.views.generic.edit import CreateView,UpdateView,DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
-from .models import Project,ProjectComponent,FriendRequest,Profile,ProjectHistory
+from .models import Project,ProjectComponent,FriendRequest,Profile,ProjectHistory, ProjectComponentIndex,ProjectIndex
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse,JsonResponse
@@ -34,7 +34,13 @@ def index(request):
     Returns:
         [HttpResponse] -- [Points our view to a template to be rendered with the appropriate request.]
     """
-    return render(request,'assemble/index.html')
+    test_project = ProjectIndex.objects.get(id=1)
+    project_components = ProjectComponentIndex.objects.filter(project__id=1).filter(task=None)
+
+    context = {}
+    context['test_project'] = test_project
+    context['project_components'] = project_components
+    return render(request,'assemble/index.html',context)
 
 # sign up view
 def sign_up(request):

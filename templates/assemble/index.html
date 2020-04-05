@@ -1,13 +1,266 @@
 {% extends 'assemble/base.html' %}
 
 {% block content %}
+<style>
+
+    .display-none{
+        display:none;
+    }
+
+    .uncompleted {
+        border-left:5px solid red;
+    }
+
+    .completed {
+        border-left:5px solid #00b374;
+    }
+</style>
+
 <div class="container">
   {% if request.user.is_authenticated %}
-    <h1 class="text-center">Welcome to Assemble</h1>
-    <p class='text-center'>Click on "View Your Projects" to create new projects. </p>
+    <h1 class="text-center display-2  text-primary">Welcome to Assemble</h1>
+    <h3 class='text-center'>Click on "View Your Projects" to create new projects. </p>
   {% else %}
   <h1 class='text-center'>Create an account to access Assemble</h1>
   {% endif %}
 </div>
+<hr/>
+<div class="container text-center  d-flex flex-column align-items-center">
+  <h1 class="display-2 text-primary"> How does Assemble work?</h1>
+  <h4> The goal of Assemble is to provide a platform to break down your project or problem into smaller problems while providing a simple way to manage these tasks. You can become friends with other users and add them to the workflow for certain projects!
+  </h4>
+  <h4 class="mt-2"> You can start by creating a project, maybe a replica of the Snake game in JavaScript. </h4>
+  <span class="my-3" style="font-size:2rem;"><i class="fa fa-arrow-down"></i></span>
+  <div class="card text-white mb-3 bg-primary" style="max-width: 18rem;">
+      <div class="card-header p-4">
+          <h3>
+              <a class="text-white" style="text-decoration:none;">Snake</a>
+          </h3>
+      </div>
+  </div>
+  <h4 class="mt-2"> Now let's try breaking this game down into smaller parts to tackle. For example, we need to create a snake, create some food, and move our snake. Try creating tasks for each of these smaller parts!<br> <span class="text-danger">Don't be afraid to mess around, everything will reset on refresh.<span> </h4>
+  <span class="my-3" style="font-size:2rem;"><i class="fa fa-arrow-down"></i></span>
+</div>
 
+<div class="container">
+  <div class="row d-flex justify-content-between">
+        {% for component in project_components %}
+            <div class="col-md-3 mb-2">
+                <div class="card text-white" >
+                    <div class="card-header bg-primary mb-2 text-center">
+                        {{ component.name }} 
+                    </div>
+                    <div class="list-group">
+                        <ul id="list-{{component.id}}" class="list-group px-3" style="overflow-y:scroll;max-height:400px;">
+                        
+                            {% for task in component.component.all %}
+                                {% if task.completed == True %}
+                                   
+                                    <li id="task-{{task.id}}"class="list-group-item d-flex justify-content-between align-items-center mb-2 rounded-0 bg-light completed">
+                                        
+                                        <span class="text-dark">{{task.name}}</span>
+                                        <span class="badge d-flex flex-column">
+                                            <a class="finish-task " style="cursor:pointer;" id="{{task.id}}"><span style="color:green;font-size:1rem;"><i class="fa fa-undo"></i></span></a>
+                                            <a class="edit-task" id="{{task.id}}" style="cursor:pointer;"><span style="color:orange;font-size:1rem;"><i class="fa fa-edit"></i></span></a>
+                                            <a class="delete-task" style="cursor:pointer;" id="{{task.id}}"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a>
+                                        </span>
+                                        
+                                    </li>
+                                    
+
+                                {% else %}
+                                    
+                                    <li id="task-{{task.id}}" class="list-group-item d-flex justify-content-between align-items-center mb-2 rounded-0 bg-light uncompleted">
+                                        
+                                        <span class="text-dark">{{task.name}}</span>
+                                        <span class="badge d-flex flex-column">
+                                            <a class="finish-task" style="cursor:pointer;" id="{{task.id}}"><span style="color:green;font-size:1rem;"><i class="fa fa-check"></i></span></a>
+                                            <a class="edit-task" id="{{task.id}}" style="cursor:pointer;"><span style="color:orange;font-size:1rem;"><i class="fa fa-edit"></i></span></a>
+                                            <a style="cursor:pointer;" class="delete-task" id="{{task.id}}"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a>  
+                                        </span>
+                                        
+                                    </li>
+                                    
+
+                                {% endif %}
+
+                                <div class="display-none mt-1" id="edit-buttons-{{task.id}}">
+                                    <form id="form-{{task.id}}" data-testid="{{task.id}}" method="post" class="form-group edit-form">
+                                        <input class="form-control" type="text" id="input-{{task.id}}" value="" name="name">
+                                        <button class="btn btn-sm btn-primary my-2 confirm-edit" data-testid="{{task.id}}" id="confirm-edit-{{task.id}}" type="submit">
+                                        Confirm
+                                        </button>
+                                        <button class="btn btn-sm btn-danger my-2 cancel-edit" id="cancel-edit-{{task.id}}" data-testid="{{task.id}}" type="button">
+                                        Cancel
+                                        </button>
+                                    </form>
+                                </div>
+                            {% endfor %}
+
+                            {#<a class="btn btn-info btn-sm text-white mb-2" href="{% url 'create-task' component.slug %}"><i class="fa fa-plus"></i> Create To do items</a>#}
+
+                            {# this renders one modal form for each component#}
+                            {# might not be the most efficient way to do this #}
+
+                        </ul>
+
+                        <div class="card-footer">
+                            <form id="form-{{component.id}}" method="post" class="form-group show-form display-none" >
+                                {% csrf_token %}
+                                <label for="name" style="color:black;">Task Name: </label>
+                                <input type="text" class="form-control" id="name-{{component.id}}" name="name"></input>
+                                <button class="create-task btn btn-primary btn-sm text-white my-2" id="create-{{component.id}}" type="submit">Submit</button>
+                                <button type="button" class="cancel-task btn btn-danger btn-sm text-white my-2" id="cancel-{{component.id}}" >Cancel</button>
+                            </form>
+
+                            <button class="show-form-button btn btn-primary text-white btn-sm mb-2 btn-block" id="{{component.id}}">Create project tasks</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        
+    </div>
+    
+  </div>
+  
+</div>
 {% endblock content %}
+
+{% block javascript %}
+
+<script type="text/javascript">
+    var testFormBtn = $(".show-form-button")
+    var cancelTask = $(".cancel-task")
+    var createTask = $(".create-task")
+    var createForm = $('.show-form')
+    var editForm = $('.edit-form')
+
+    // function to add or remove class from tags
+    function changeTaskStatus(item,completed,uncompleted){
+        var taskCompleted = $(item).hasClass(completed);
+        if (taskCompleted){
+            $(item).removeClass(completed)
+            $(item).addClass(uncompleted)
+        } else {
+            $(item).removeClass(uncompleted)
+            $(item).addClass(completed)
+        }
+    }
+
+    function addRow(id,data){
+        // id is the id of the component
+        var componentList = $(`#list-${id}`)
+        var listDiv = `<li id="task-${data.id}" class="list-group-item d-flex justify-content-between align-items-center mb-2 rounded-0 bg-light uncompleted">
+        <span class="text-dark">${data.name}</span>
+        <span class="badge d-flex flex-column">
+        <a class="finish-task" id="${data.id}" style="cursor:pointer;"><span style="color:green;font-size:1rem;"><i class="fa fa-check"></i></span></a>
+        <a class="edit-task" id="${data.id}" style="cursor:pointer;"><span style="color:orange;font-size:1rem;"><i class="fa fa-edit"></i></span></a>
+        <a class="delete-task" id="${data.id}" style="cursor:pointer;"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a>
+        </span>
+        </li>`
+        componentList.append(listDiv)
+
+    }
+
+    function removeRow(id){
+        var listDiv = $(`#task-${id}`)
+        listDiv.remove()
+    }
+
+    // updates change task
+    // $(.ajax-test) is only set on page load
+    $(document).on('click',".finish-task", function(){
+        var id;
+        id = $(this).attr("id");
+        changeTaskStatus(`#task-${id}`,"completed","uncompleted");
+    });
+
+    // delete task icon
+    $(document).on('click',".delete-task", function(){
+        var id;
+        id = $(this).attr("id");
+        removeRow(id)
+    });
+
+    //edit task
+    $(document).on('click',".edit-task", function(originalValue){
+        var id;
+        id = $(this).attr("id")
+        var value = $.trim($(this).parent().parent().text())
+        // removes the leading and trailing white spaces.
+        $(`#task-${id}`).removeClass('d-flex')
+        $(`#task-${id}`).addClass('display-none')
+        $(`#edit-buttons-${id}`).removeClass('display-none')
+        $(`#input-${id}`).val(value)
+        
+    });
+
+    // cancel edit
+    $(document).on('click',".cancel-edit", function(){
+        var id;
+        id = $(this).data("testid")
+        $(`#task-${id}`).addClass('d-flex')
+        $(`#task-${id}`).removeClass('display-none')
+        $(`#edit-buttons-${id}`).addClass('display-none')
+        
+        
+    });
+
+    //submit edit
+    editForm.submit(function(e){
+        e.preventDefault()
+        var id;
+        
+        id = $(this).data("testid")
+        var originalValue = $.trim($(`#task-${id}`).children().first().text())
+
+        //change front end
+        var edited_value = $(`#input-${id}`).val()
+        $(`#task-${id}`).addClass('d-flex')
+        $(`#task-${id}`).removeClass('display-none')
+        $(`#edit-buttons-${id}`).addClass('display-none')
+
+        // validate that it is less than 100 characters
+        if (edited_value !== originalValue){
+            if(edited_value.length < 100){
+                console.log("Satisifies edit form.")
+                $(`#task-${id}`).children().first().text(edited_value)
+
+            } else {
+                alert("Edited value has to be less than 100 characters.")
+            }
+        } 
+    })
+
+    testFormBtn.click(function(){
+        var id = $(this).attr("id")
+        $(`#form-${id}`).removeClass("display-none")
+        $(`#create-${id}`).css("display","inline")
+        $(`#cancel-${id}`).css("display","inline")
+        $(`#${id}`).addClass("display-none")
+    })
+
+
+    function randomNumber(){
+      return Math.floor((Math.random() * 100) + 1);
+    }
+
+    // on create form submit
+    createForm.submit(function(e){
+        e.preventDefault()
+        var id = $(this).siblings('.show-form-button').attr("id")
+        var name = $(`#name-${id}`).val()
+        $(this)[0].reset()
+        task_id = randomNumber()
+        addRow(id,{"id":task_id,'name':name})
+    })
+
+    cancelTask.click(function(e){
+        e.preventDefault()
+        $(this).parent(".show-form").addClass('display-none')
+        $(this).parent().siblings('.show-form-button').removeClass('display-none')
+    })
+</script>
+
+{% endblock javascript %}
