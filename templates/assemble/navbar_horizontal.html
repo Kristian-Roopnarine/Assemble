@@ -1,5 +1,14 @@
 
-<nav class="navbar sticky-top navbar-expand-lg navbar-light bg-dark">
+
+<style>
+    .orange-bg {
+        background-color:#FFA500;
+    }
+
+
+</style>
+
+<nav class="navbar sticky-top navbar-expand-lg navbar-light orange-bg">
     <a class="navbar-brand text-white" href="{% url 'home' %}">
         Assemble
     </a>
@@ -33,7 +42,7 @@
         <form class="form-inline" method="post" action="{% url 'search-user' %}">
             {% csrf_token %}
             <input class="form-control mr-sm-2" name="username" type="search" placeholder="Search Users" aria-label="Search">
-            <button class="btn btn-outline-info my-2 my-sm-0" type="submit">Search</button>
+            <button class="btn btn-outline-light my-2 my-sm-0" type="submit">Search</button>
         </form>
         {% endif %}
     

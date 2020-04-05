@@ -5,10 +5,26 @@
 {% block content %}
 
 <style>
+
     .display-none{
         display:none;
     }
 
+    .uncompleted {
+        border-left:5px solid red;
+    }
+
+    .completed {
+        border-left:5px solid #00b374;
+    }
+
+    .btn-purple {
+        background-color:#a500ff;
+    }
+
+    .btn-orange {
+        background-color:#ffa500;
+    }
 </style>
 
 <div class="container text-center my-3">
@@ -18,46 +34,56 @@
 
     <div class="row text-center flex-nowrap">
         <div class="col-md-2">
-            <a class="btn btn-info btn-sm text-white mb-2" href="{% url 'project-component-create' project.slug %}"><i class="fa fa-sitemap"></i> Create Smaller Projects</a>
-            <a class="btn btn-warning btn-sm text-white" href="{% url 'project-history' project.id %}"><i class="fa fa-history"></i> View Project History</a>
+            <a class="btn btn-orange text-white mb-2" href="{% url 'project-history' project.id %}"><i class="fa fa-history"></i> View Project History</a>
+            <a class="btn btn-primary text-white" href="{% url 'project-component-create' project.slug %}"><i class="fa fa-sitemap"></i> Create Smaller Projects</a>
+            
         </div>
 
         {% for component in project_components %}
             <div class="col-md-3 mb-2">
                 <div class="card text-white" >
-                    <div class="card-header bg-secondary mb-2">
+                    <div class="card-header bg-primary mb-2">
                         {{ component.name }}  <a href="{% url 'edit-details' component.id %}"><span style="color:white;font-size:1rem;"><i class="fa fa-edit"></i></span></a>
                         <a href="{% url 'delete-task' component.id %}"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a>
                     </div>
                     <div class="list-group">
                         <ul id="list-{{component.id}}" class="list-group px-3" style="overflow-y:scroll;max-height:400px;">
+                        
                             {% for task in component.component.all %}
                                 {% if task.completed == True %}
-                                    <li id="task-{{task.id}}"class="list-group-item d-flex justify-content-between align-items-center border mb-2 rounded-0 list-group-item-success">
-                                        <span>{{task.name}}</span>
-                                        <span class="badge">
-                                            <a class="finish-task" style="cursor:pointer;" id="{{task.id}}"><span style="color:green;font-size:1rem;"><i class="fa fa-check"></i></span></a>
-                                            <a class="edit-task" id="{{task.id}}" style="cursor:pointer;"><span style="color:white;font-size:1rem;"><i class="fa fa-edit"></i></span></a>
+                                   
+                                    <li id="task-{{task.id}}"class="list-group-item d-flex justify-content-between align-items-center mb-2 rounded-0 bg-light completed">
+                                        
+                                        <span class="text-dark">{{task.name}}</span>
+                                        <span class="badge d-flex flex-column">
+                                            <a class="finish-task " style="cursor:pointer;" id="{{task.id}}"><span style="color:green;font-size:1rem;"><i class="fa fa-undo"></i></span></a>
+                                            <a class="edit-task" id="{{task.id}}" style="cursor:pointer;"><span style="color:orange;font-size:1rem;"><i class="fa fa-edit"></i></span></a>
                                             <a class="delete-task" style="cursor:pointer;" id="{{task.id}}"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a>
                                         </span>
+                                        
                                     </li>
+                                    
 
                                 {% else %}
-                                    <li id="task-{{task.id}}" class="list-group-item d-flex justify-content-between align-items-center border mb-2 rounded-0 list-group-item-danger">
-                                        <span>{{task.name}}</span>
-                                        <span class="badge">
+                                    
+                                    <li id="task-{{task.id}}" class="list-group-item d-flex justify-content-between align-items-center mb-2 rounded-0 bg-light uncompleted">
+                                        
+                                        <span class="text-dark">{{task.name}}</span>
+                                        <span class="badge d-flex flex-column">
                                             <a class="finish-task" style="cursor:pointer;" id="{{task.id}}"><span style="color:green;font-size:1rem;"><i class="fa fa-check"></i></span></a>
-                                            <a class="edit-task" id="{{task.id}}" style="cursor:pointer;"><span style="color:white;font-size:1rem;"><i class="fa fa-edit"></i></span></a>
-                                            <a style="cursor:pointer;" class="delete-task" id="{{task.id}}"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a>
+                                            <a class="edit-task" id="{{task.id}}" style="cursor:pointer;"><span style="color:orange;font-size:1rem;"><i class="fa fa-edit"></i></span></a>
+                                            <a style="cursor:pointer;" class="delete-task" id="{{task.id}}"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a>  
                                         </span>
+                                        
                                     </li>
+                                    
 
                                 {% endif %}
 
                                 <div class="display-none mt-1" id="edit-buttons-{{task.id}}">
                                     <form id="form-{{task.id}}" data-testid="{{task.id}}" method="post" class="form-group edit-form">
                                         <input class="form-control" type="text" id="input-{{task.id}}" value="" name="name">
-                                        <button class="btn btn-sm btn-success my-2 confirm-edit" data-testid="{{task.id}}" id="confirm-edit-{{task.id}}" type="submit">
+                                        <button class="btn btn-sm btn-primary my-2 confirm-edit" data-testid="{{task.id}}" id="confirm-edit-{{task.id}}" type="submit">
                                         Confirm
                                         </button>
                                         <button class="btn btn-sm btn-danger my-2 cancel-edit" id="cancel-edit-{{task.id}}" data-testid="{{task.id}}" type="button">
@@ -78,11 +104,11 @@
                                 {% csrf_token %}
                                 <label for="name" style="color:black;">Task Name: </label>
                                 <input type="text" class="form-control" id="name-{{component.id}}" name="name"></input>
-                                <button class="create-task btn btn-success btn-sm text-white my-2" id="create-{{component.id}}" type="submit">Submit</button>
+                                <button class="create-task btn btn-primary btn-sm text-white my-2" id="create-{{component.id}}" type="submit">Submit</button>
                                 <button type="button" class="cancel-task btn btn-danger btn-sm text-white my-2" id="cancel-{{component.id}}" >Cancel</button>
                             </form>
 
-                            <button class="show-form-button btn btn-info btn-sm text-white mb-2 btn-block" id="{{component.id}}" class="btn btn-info">Create to do item</button>
+                            <button class="show-form-button btn btn-primary text-white btn-sm mb-2 btn-block" id="{{component.id}}">Create project tasks</button>
                             <!--
                             <button class="btn btn-info btn-sm text-white mb-2 btn-block" data-toggle="modal" data-target="#component-{{component.slug}}">
                                 <i class="fa fa-tasks"></i> Create To do items
@@ -147,7 +173,7 @@
                 pk:id,
             },
             success:function(data){
-                changeTaskStatus(`#task-${id}`,"list-group-item-success","list-group-item-danger");
+                changeTaskStatus(`#task-${id}`,"completed","uncompleted");
             }
         })
     });
@@ -288,7 +314,14 @@
     function addRow(id,data){
         // id is the id of the component
         var componentList = $(`#list-${id}`)
-        var listDiv = `<li id="task-${data.id}" class="list-group-item d-flex justify-content-between align-items-center border mb-2 rounded-0 list-group-item-danger">${data.name}<span class="badge"><a class="finish-task" id="${data.id}" style="cursor:pointer;"><span style="color:green;font-size:1rem;"><i class="fa fa-check"></i></span></a><a href="#" style="cursor:pointer;"><span style="color:white;font-size:1rem;"><i class="fa fa-edit"></i></span></a><a class="delete-task" id="${data.id}" style="cursor:pointer;"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a></span></li>`
+        var listDiv = `<li id="task-${data.id}" class="list-group-item d-flex justify-content-between align-items-center mb-2 rounded-0 bg-light uncompleted">
+        <span class="text-dark">${data.name}</span>
+        <span class="badge d-flex flex-column">
+        <a class="finish-task" id="${data.id}" style="cursor:pointer;"><span style="color:green;font-size:1rem;"><i class="fa fa-check"></i></span></a>
+        <a class="edit-task" id="${data.id}" style="cursor:pointer;"><span style="color:orange;font-size:1rem;"><i class="fa fa-edit"></i></span></a>
+        <a class="delete-task" id="${data.id}" style="cursor:pointer;"><span style="color:red;font-size:1rem;"><i class="fa fa-trash"></i></span></a>
+        </span>
+        </li>`
         componentList.append(listDiv)
 
     }
